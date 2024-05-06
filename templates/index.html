@@ -1,0 +1,18 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Random Number Generator</title>
+</head>
+<body>
+    <h1 id="randomNumber">Waiting for a number...</h1>
+
+    <script>
+    let socket = new WebSocket("wss://mascaro101.pythonanywhere.com/ws");
+    socket.onmessage = (event) => {
+        let randomNumber = event.data;
+        // Update the page with the new random number
+        document.getElementById('randomNumber').textContent = randomNumber;
+    };
+    </script>
+</body>
+</html>

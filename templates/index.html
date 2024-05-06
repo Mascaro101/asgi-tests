@@ -4,15 +4,25 @@
     <title>Random Number Generator</title>
 </head>
 <body>
-    <h1 id="randomNumber">Waiting for a number...</h1>
+    <h1 id="header">Waiting for a name...</h1>
+
+    <!-- Add a text input and a button -->
+    <input type="text" id="myInput">
+    <button onclick="sendMessage()">Send</button>
 
     <script>
     let socket = new WebSocket("wss://mascaro101.pythonanywhere.com/ws");
     socket.onmessage = (event) => {
-        let randomNumber = event.data;
-        // Update the page with the new random number
-        document.getElementById('randomNumber').textContent = randomNumber;
+        let name = event.data;
+        // Update the header with the new name
+        document.getElementById('header').textContent = name;
     };
+
+    // Function to send a message to the server
+    function sendMessage() {
+        let message = document.getElementById('myInput').value;
+        socket.send(message);
+    }
     </script>
 </body>
 </html>

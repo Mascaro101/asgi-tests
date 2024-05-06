@@ -14,6 +14,5 @@ async def read_root():
 async def websocket_endpoint(websocket: WebSocket):
     await websocket.accept()
     while True:
-        data = random.randint(0, 10)
-        await websocket.send_text(f"Random number: {data}")
-        await asyncio.sleep(1)
+        data = await websocket.receive_text()  # Receive a message from the client
+        await websocket.send_text(data)  # Send the received message back to the client

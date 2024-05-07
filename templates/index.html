@@ -1,28 +1,35 @@
 <!DOCTYPE html>
 <html>
 <head>
-    <title>Random Number Generator</title>
+    <title>Set Username</title>
 </head>
 <body>
-    <h1 id="header">Waiting for a name...</h1>
+    <h1> Username </h1>
+    <input type="text" id="usernameInput">
 
-    <!-- Add a text input and a button -->
-    <input type="text" id="myInput">
-    <button onclick="sendMessage()">Send</button>
+    <form action="/session_menu" onsubmit="setUsername(event)">
+        <button type="submit">Send</button>
+    </form>
+
 
     <script>
-    let socket = new WebSocket("wss://mascaro101.pythonanywhere.com/ws");
-    socket.onmessage = (event) => {
-        let name = event.data;
-        // Update the header with the new name
-        document.getElementById('header').textContent = name;
-    };
+    function setUsername(event) {
+        event.preventDefault();
 
-    // Function to send a message to the server
-    function sendMessage() {
-        let message = document.getElementById('myInput').value;
-        socket.send(message);
+        let username = document.getElementById('usernameInput').value;
+        fetch('/set_username', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({username: username}),
+        })
+        .then(() => {
+            // After the fetch function has finished, submit the form
+            event.target.submit();
+        });
     }
     </script>
+
 </body>
 </html>

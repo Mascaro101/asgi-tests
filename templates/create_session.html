@@ -10,17 +10,55 @@
     </head>
     <body>
 
-        <h1 id="randomNumber">Waiting for a number...</h1>
+        <h1 id="room_id">Waiting for a number...</h1>
         <h1 id="player_1">Player 1</h1>
+        <h1 id="player_2">Player 2</h1>
 
         <script>
-            let socket = new WebSocket("wss://mascaro101.pythonanywhere.com/ws/create_room");
-            socket.onmessage = (event) => {
-                let randomNumber = event.data;
-                // Update the page with the new random number
-                document.getElementById('randomNumber').textContent = randomNumber;
-            };
+            // Function to extract the room_id from the URL
+            function getRoomIdFromPath() {
+                    const pathSegments = window.location.pathname.split('/');
+                    return pathSegments[pathSegments.length - 1]; // Gets the last segment of the path
+                }
+
+            const roomId = getRoomIdFromPath();
+            if (roomId) {
+                let socket = new WebSocket(`wss://mascaro101.pythonanywhere.com/ws/create_room/${roomId}`);
+
+                socket.onopen = function(event) {
+                    console.log("WebSocket connection established with room:", roomId);
+                };
+
+                socket.onmessage = function(event) {
+                    console.log("Message from server:", event.data);
+                    try {
+                        const data = JSON.parse(event.data);
+                        // Extract room and username from the parsed data
+                        const room = data.room;
+                        const player_1 = data.player_1;
+                        const player_2 = data.player_2;
+
+                        // Update the DOM elements or handle the data as needed
+                        document.getElementById('room_id').textContent = room;
+                        document.getElementById('player_1').textContent = player_1;
+                        document.getElementById('player_2').textContent = player_2;
+                    } catch (error) {
+                        console.error("Error parsing JSON from server:", error);
+                    }
+                };
+
+                socket.onerror = function(event) {
+                    console.error("WebSocket error observed:", event);
+                };
+
+                socket.onclose = function(event) {
+                    console.log("WebSocket connection closed:", event.reason);
+                };
+            } else {
+                console.error('Room ID is missing from the URL');
+            }
         </script>
+
 
 
         <script src="" async defer></script>

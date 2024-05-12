@@ -8,6 +8,7 @@ from starlette.middleware.cors import CORSMiddleware
 import pymysql
 import aiomysql
 import asyncio
+import traceback
 
 import secrets
 import shortuuid
@@ -79,37 +80,81 @@ async def create_rooms_table():
     finally:
         connection.close()
 
+async def create_room_moves_table():
+    connection = await get_db_connection()
+    try:
+        async with connection.cursor() as cursor:
+            await cursor.execute('''
+                CREATE TABLE IF NOT EXISTS room_moves (
+                    move_id INT AUTO_INCREMENT,
+                    room_id VARCHAR(100),
+                    player_1_moves VARCHAR(100),
+                    player_2_moves VARCHAR(100),
+                    PRIMARY KEY(move_id, room_id),
+                    FOREIGN KEY(room_id) REFERENCES rooms(room_id)
+                )
+            ''')
+            await connection.commit()
+    finally:
+        connection.close()
+
 
 @app.on_event("startup")
 async def startup_event():
-    await create_rooms_table()
-    print("Database table setup completed.")
+    try:
+        await create_rooms_table()
+        await create_room_moves_table()
+        print("Database table setup completed.")
+    except Exception as e:
+        print(f"Failed to complete startup event: {e}")
 
 class Room(BaseModel):
     room_id: str
     player_1: str
     player_2: str = None
 
-@app.post("/rooms/")
-async def insert_room(room: Room, background_tasks: BackgroundTasks):
-    background_tasks.add_task(insert_room_sync, room.room_id, room.player_1)
-    return {"message": "Room creation initiated"}
-
 async def insert_room_sync(room_id, player_1):
     connection = await get_db_connection()
     try:
         async with connection.cursor() as cursor:
+            # First INSERT statement
             await cursor.execute(
                 "INSERT INTO rooms (room_id, player_1, player_2) VALUES (%s, %s, %s)",
                 (room_id, player_1, "Waiting For Player 2")
             )
+            # Second INSERT statement
+            await cursor.execute(
+                "INSERT INTO room_moves (room_id, player_1_moves, player_2_moves) VALUES (%s, %s, %s)",
+                (room_id, "No Moves", "No Moves")
+            )
+            # Commit the transaction
             await connection.commit()
+    except aiomysql.Error as e:
+        print(f"An error occurred: {e}")
+        await connection.rollback()
+    finally:
+        connection.close()
+
+async def insert_room_move(room_id, move, position):
+    connection = await get_db_connection()
+    print("Started Insert to", room_id, move)
+    try:
+        if position == 1:
+            async with connection.cursor() as cursor:
+                await cursor.execute(
+                    "UPDATE room_moves SET player_1_moves = %s WHERE room_id = %s",
+                    (move, room_id)
+                )
+                await connection.commit()
+
+        elif position == 2:
+            pass
     finally:
         connection.close()
 
 @app.post("/join_session")
 async def join_session(request: Request, background_tasks: BackgroundTasks, room_id: str = Form(...)):
-    user = request.session.get("username")  # Safely getting the username to avoid KeyError
+    user = request.session.get("username")
     room = room_id
     background_tasks.add_task(join_room_sync, room, user)
 
@@ -117,10 +162,10 @@ async def join_session(request: Request, background_tasks: BackgroundTasks, room
     redirect_url = f"/create_session/{room_id}"
 
     # Return a redirect response to the URL
-    return RedirectResponse(url=redirect_url, status_code=303)  # Use 303 See Other for POST-to-GET redirect
+    return RedirectResponse(url=redirect_url, status_code=303)
 
-
-async def join_room_sync(room_id: str, player_2: str):
+async def join_room_sync(request: Request, room_id: str, player_2: str):
+    request.session["position"] = 2
     connection = await get_db_connection()
     try:
         async with connection.cursor() as cursor:
@@ -153,7 +198,7 @@ async def create_session(request: Request, background_tasks: BackgroundTasks):
     room_id = room_id_gen.random(4)
     user = request.session["username"]
     request.session["room_id"] = room_id
-
+    request.session["position"] = 1
     background_tasks.add_task(insert_room_sync, room_id, user)
 
     # Append the token to the URL
@@ -187,20 +232,29 @@ async def websocket_endpoint(websocket: WebSocket, page: str, room_id: str):
     try:
         if page == "create_room":
             while True:
-                room = room_id
-                player_1 = await get_player_one(room_id)
-                player_2 = await get_player_two(room_id)
+                try:
+                    data = await asyncio.wait_for(websocket.receive_json(), timeout=0.1)
+                    move = data["move"]
+                    if data:
+                        print(f"Received data: {data}")
+                        await insert_room_move(room_id, move, 1) # HOW TO CALL request.session.get("position")?????
 
-                data_to_send = json.dumps({"room": room, "player_1": player_1, "player_2": player_2})
+                except asyncio.TimeoutError:
+                    room = room_id
+                    player_1 = await get_player_one(room_id)
+                    player_2 = await get_player_two(room_id)
 
-                await websocket.send_text(data_to_send)
+                    data_to_send = json.dumps({"room": room, "player_1": player_1, "player_2": player_2})
 
-                # Pause for 2 seconds before the next iteration
-                await asyncio.sleep(2)
-        # Handle other pages...
+                    await websocket.send_text(data_to_send)
+
+                    # Pause for 2 seconds before the next iteration
+                    await asyncio.sleep(2)
+
     except WebSocketDisconnect:
         print(f"WebSocket disconnected for room {room_id} on page {page}")
     except Exception as e:
         print(f"An error occurred: {e}")
+        traceback.print_exc()
         await websocket.close(code=1011, reason="Unexpected error")
 

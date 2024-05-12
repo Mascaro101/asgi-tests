@@ -14,16 +14,25 @@
         <h1 id="player_1">Player 1</h1>
         <h1 id="player_2">Player 2</h1>
 
+        <button onclick="sendMove('rock')">Rock</button>
+        <button onclick="sendMove('paper')">Paper</button>
+        <button onclick="sendMove('scissors')">Scissors</button>
+
+
+
         <script>
             // Function to extract the room_id from the URL
             function getRoomIdFromPath() {
-                    const pathSegments = window.location.pathname.split('/');
-                    return pathSegments[pathSegments.length - 1]; // Gets the last segment of the path
-                }
+                const pathSegments = window.location.pathname.split('/');
+                return pathSegments[pathSegments.length - 1];
+            }
 
-            const roomId = getRoomIdFromPath();
-            if (roomId) {
-                let socket = new WebSocket(`wss://mascaro101.pythonanywhere.com/ws/create_room/${roomId}`);
+            // Declare Socket Global
+            let socket = null;
+
+            // Function to establish the WebSocket connection
+            function establishConnection(roomId) {
+                socket = new WebSocket(`wss://mascaro101.pythonanywhere.com/ws/create_room/${roomId}`);
 
                 socket.onopen = function(event) {
                     console.log("WebSocket connection established with room:", roomId);
@@ -33,7 +42,7 @@
                     console.log("Message from server:", event.data);
                     try {
                         const data = JSON.parse(event.data);
-                        // Extract room and username from the parsed data
+                        // Extract room and player information from the parsed data
                         const room = data.room;
                         const player_1 = data.player_1;
                         const player_2 = data.player_2;
@@ -54,9 +63,38 @@
                 socket.onclose = function(event) {
                     console.log("WebSocket connection closed:", event.reason);
                 };
+            }
+
+            // Function to send a move
+            function sendMove(move) {
+                if (socket && socket.readyState === WebSocket.OPEN) {
+                    socket.send(JSON.stringify({move: move}));
+                    console.log('Move sent:', move);
+                } else {
+                    console.log('WebSocket is not open. Cannot send move.');
+                }
+            }
+
+            // Function to disconnect the WebSocket
+            function disconnectWebSocket() {
+                if (socket) {
+                    socket.close(1000, "Closing connection normally");
+                }
+            }
+
+            // Establish and Handle websocket based on data from roomID
+            const roomId = getRoomIdFromPath();
+            if (roomId) {
+                establishConnection(roomId);
             } else {
                 console.error('Room ID is missing from the URL');
             }
+
+            // Disconect websocket once page is closed
+            window.addEventListener('beforeunload', function() {
+                disconnectWebSocket();
+            });
+
         </script>
 
 

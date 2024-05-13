@@ -51,6 +51,41 @@ async def get_player_one(room_id):
     finally:
         connection.close()
 
+async def have_both_moved(room_id):
+    connection = await get_db_connection()
+    player_status = []
+    try:
+        async with connection.cursor() as cursor:
+            await cursor.execute("SELECT player_1_moves FROM room_moves WHERE room_id = %s", (room_id,))
+            result_player_1 = await cursor.fetchone()
+
+            if result_player_1 != "No Moves":
+                player_status.append(True)
+
+
+            await cursor.execute("SELECT player_2_moves FROM room_moves WHERE room_id = %s", (room_id,))
+            result_player_2 = await cursor.fetchone()
+
+            if result_player_2 != "No Moves":
+                player_status.append(True)
+
+        if len(player_status) == 2:
+            return True, result_player_1, result_player_2
+        else:
+            player_status = []
+            return False, None, None
+    finally:
+        connection.close()
+
+async def rock_paper_scissors(room_id):
+    ready, raw_result_player_1, raw_result_player_2 = await have_both_moved(room_id)
+
+    if ready == True:
+        result_player_1 = raw_result_player_1["player_1_moves"]
+        result_player_2 = raw_result_player_2["player_2_moves"]
+
+        ## ADD LOGIC FOR A ROCK PAPER SCISSORS GAME pereza
+
 async def get_player_two(room_id):
     connection = await get_db_connection()
     try:
@@ -259,6 +294,7 @@ async def websocket_endpoint(websocket: WebSocket, page: str, room_id: str, user
                         position = 2
 
                     data_to_send = json.dumps({"room": room, "player_1": player_1, "player_2": player_2})
+                    await rock_paper_scissors(room_id)
 
                     await websocket.send_text(data_to_send)
 

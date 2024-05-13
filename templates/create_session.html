@@ -29,23 +29,31 @@
 
             // Declare Socket Global
             let socket = null;
+
+            // Get username from session storage and log it
             const username = sessionStorage.getItem("username")
             console.log("Username from Storage:", username)
 
             // Function to establish the WebSocket connection
             function establishConnection(roomId, username) {
+
+                // Encode the username before sending it to the server
                 console.log("Before Encode:", sessionStorage.getItem("username"))
                 const encodedUsername = encodeURIComponent(sessionStorage.getItem("username"));
-                socket = new WebSocket(`wss://mascaro101.pythonanywhere.com/ws/create_room/${roomId}?username=${encodedUsername}`);
 
+                // Establish the WebSocket connection with the server
+                socket = new WebSocket(`wss://mascaro101.pythonanywhere.com/ws/create_room/${roomId}?username=${encodedUsername}`);
                 socket.onopen = function(event) {
                     console.log("WebSocket connection established with room:", roomId);
                 };
 
+                // On recieve message from server
                 socket.onmessage = function(event) {
                     console.log("Message from server:", event.data);
                     try {
+                        // Parse the JSON data received from the server
                         const data = JSON.parse(event.data);
+
                         // Extract room and player information from the parsed data
                         const room = data.room;
                         const player_1 = data.player_1;
@@ -55,6 +63,7 @@
                         document.getElementById('room_id').textContent = room;
                         document.getElementById('player_1').textContent = player_1;
                         document.getElementById('player_2').textContent = player_2;
+
                     } catch (error) {
                         console.error("Error parsing JSON from server:", error);
                     }
@@ -72,6 +81,8 @@
             // Function to send a move
             function sendMove(move) {
                 if (socket && socket.readyState === WebSocket.OPEN) {
+
+                    // Send the move to the server and log it
                     socket.send(JSON.stringify({move: move}));
                     console.log('Move sent:', move);
                 } else {

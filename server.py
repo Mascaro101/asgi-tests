@@ -1,4 +1,4 @@
-from fastapi import FastAPI, WebSocket, Request, WebSocketDisconnect, BackgroundTasks, Form
+from fastapi import FastAPI, WebSocket, Request, WebSocketDisconnect, BackgroundTasks, Form, Query
 from fastapi.responses import HTMLResponse, RedirectResponse
 from fastapi.templating import Jinja2Templates
 from starlette.responses import FileResponse, JSONResponse
@@ -138,6 +138,7 @@ async def insert_room_sync(room_id, player_1):
 async def insert_room_move(room_id, move, position):
     connection = await get_db_connection()
     print("Started Insert to", room_id, move)
+    print("Position:", position)
     try:
         if position == 1:
             async with connection.cursor() as cursor:
@@ -148,7 +149,12 @@ async def insert_room_move(room_id, move, position):
                 await connection.commit()
 
         elif position == 2:
-            pass
+            async with connection.cursor() as cursor:
+                await cursor.execute(
+                    "UPDATE room_moves SET player_2_moves = %s WHERE room_id = %s",
+                    (move, room_id)
+                )
+                await connection.commit()
     finally:
         connection.close()
 
@@ -164,8 +170,8 @@ async def join_session(request: Request, background_tasks: BackgroundTasks, room
     # Return a redirect response to the URL
     return RedirectResponse(url=redirect_url, status_code=303)
 
-async def join_room_sync(request: Request, room_id: str, player_2: str):
-    request.session["position"] = 2
+
+async def join_room_sync(room_id: str, player_2: str):
     connection = await get_db_connection()
     try:
         async with connection.cursor() as cursor:
@@ -194,6 +200,7 @@ async def session_menu(request: Request):
 
 @app.get("/create_session")
 async def create_session(request: Request, background_tasks: BackgroundTasks):
+    # If room is created after another user has been created in the same browser player1 = player2
     room_id_gen = shortuuid.ShortUUID("23456789ABCDEF")
     room_id = room_id_gen.random(4)
     user = request.session["username"]
@@ -227,8 +234,10 @@ async def set_username(request: Request, user: User):
     return username
 
 @app.websocket("/ws/{page}/{room_id}")
-async def websocket_endpoint(websocket: WebSocket, page: str, room_id: str):
+async def websocket_endpoint(websocket: WebSocket, page: str, room_id: str, username: str = Query(None)):
     await websocket.accept()
+    print("Recieved WS Username:", username)
+    position = 0
     try:
         if page == "create_room":
             while True:
@@ -237,12 +246,17 @@ async def websocket_endpoint(websocket: WebSocket, page: str, room_id: str):
                     move = data["move"]
                     if data:
                         print(f"Received data: {data}")
-                        await insert_room_move(room_id, move, 1) # HOW TO CALL request.session.get("position")?????
+                        await insert_room_move(room_id, move, position)
 
                 except asyncio.TimeoutError:
                     room = room_id
                     player_1 = await get_player_one(room_id)
                     player_2 = await get_player_two(room_id)
+
+                    if player_1 == username:
+                        position = 1
+                    else:
+                        position = 2
 
                     data_to_send = json.dumps({"room": room, "player_1": player_1, "player_2": player_2})
 

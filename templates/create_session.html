@@ -29,10 +29,14 @@
 
             // Declare Socket Global
             let socket = null;
+            const username = sessionStorage.getItem("username")
+            console.log("Username from Storage:", username)
 
             // Function to establish the WebSocket connection
-            function establishConnection(roomId) {
-                socket = new WebSocket(`wss://mascaro101.pythonanywhere.com/ws/create_room/${roomId}`);
+            function establishConnection(roomId, username) {
+                console.log("Before Encode:", sessionStorage.getItem("username"))
+                const encodedUsername = encodeURIComponent(sessionStorage.getItem("username"));
+                socket = new WebSocket(`wss://mascaro101.pythonanywhere.com/ws/create_room/${roomId}?username=${encodedUsername}`);
 
                 socket.onopen = function(event) {
                     console.log("WebSocket connection established with room:", roomId);

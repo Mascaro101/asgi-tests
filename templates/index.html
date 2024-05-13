@@ -17,6 +17,8 @@
         event.preventDefault();
 
         let username = document.getElementById('usernameInput').value;
+        sessionStorage.setItem("username", username)
+
         fetch('/set_username', {
             method: 'POST',
             headers: {

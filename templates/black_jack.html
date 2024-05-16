@@ -1,0 +1,24 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Set Username</title>
+</head>
+<body>
+    <h1>Black Jack</h1>
+
+    <h1 id=username> Username </h1>
+
+
+
+    <script>
+    function setUsername(event) {
+        event.preventDefault();
+        const username = sessionStorage.getItem("username")
+        document.getElementById('username').textContent = username;
+    }
+
+    document.addEventListener('DOMContentLoaded', setUsername);
+    </script>
+
+</body>
+</html>

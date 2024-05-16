@@ -1,7 +1,7 @@
 from fastapi import FastAPI, WebSocket, Request, WebSocketDisconnect, BackgroundTasks, Form, Query
 from fastapi.responses import HTMLResponse, RedirectResponse
 from fastapi.templating import Jinja2Templates
-from starlette.responses import FileResponse, JSONResponse
+from starlette.responses import FileResponse
 from starlette.middleware.sessions import SessionMiddleware
 from starlette.middleware.cors import CORSMiddleware
 
@@ -81,7 +81,7 @@ async def insert_room_sync(room_id, player_1):
     finally:
         connection.close()
 
-# Function to get the player_1 from the rooms table	
+# Function to get the player_1 from the rooms table
 async def get_player_one(room_id):
     connection = await get_db_connection()
     try:
@@ -95,7 +95,7 @@ async def get_player_one(room_id):
     finally:
         connection.close()
 
-# Function to get the player_2 from the rooms table	
+# Function to get the player_2 from the rooms table
 async def get_player_two(room_id):
     connection = await get_db_connection()
     try:
@@ -153,7 +153,7 @@ async def insert_room_move(room_id, move, position):
     finally:
         connection.close()
 
-# Function to join a room from room_id 
+# Function to join a room from room_id
 async def join_room_sync(room_id: str, player_2: str):
     connection = await get_db_connection()
     try:
@@ -200,8 +200,18 @@ async def rock_paper_scissors(room_id):
     if ready == True:
         result_player_1 = raw_result_player_1["player_1_moves"]
         result_player_2 = raw_result_player_2["player_2_moves"]
+        combined_result = (result_player_1, result_player_2)
 
-        ## ADD LOGIC FOR A ROCK PAPER SCISSORS GAME pereza
+        player_1_lose = [("rock", "paper"), ("scissors", "rock"), ("paper", "scissors")]
+        print(room_id, result_player_1, result_player_2)
+
+        if combined_result[0] == combined_result[1]:
+            return "tie"
+        elif combined_result in player_1_lose:
+            return "player_2"
+        else:
+            return "player_1"
+
 
 # Event on Startup
 # Create the database tables on startup
@@ -293,6 +303,12 @@ async def set_username(request: Request, user: User):
     print(f"Username: {username}")
     return username
 
+
+# BLACK JACK
+@app.get("/black_jack")
+async def start_black_jack():
+    return FileResponse('/home/mascaro101/casino_asgi/templates/black_jack.html')
+
 # Websocket Endpoint
 @app.websocket("/ws/{page}/{room_id}")
 
@@ -330,12 +346,12 @@ async def websocket_endpoint(websocket: WebSocket, page: str, room_id: str, user
                     else:
                         position = 2
 
-                    # Construct the JSON data to send to the client and send it
-                    data_to_send = json.dumps({"room": room, "player_1": player_1, "player_2": player_2})
-                    await websocket.send_text(data_to_send)
-
                     # Check if both players have moved and determine the winner
-                    await rock_paper_scissors(room_id)
+                    player_won = await rock_paper_scissors(room_id)
+
+                    # Construct the JSON data to send to the client and send it
+                    data_to_send = json.dumps({"room": room, "player_1": player_1, "player_2": player_2, "player_won": player_won})
+                    await websocket.send_text(data_to_send)
 
                     # Pause for 2 seconds before the next iteration
                     await asyncio.sleep(2)
@@ -343,7 +359,7 @@ async def websocket_endpoint(websocket: WebSocket, page: str, room_id: str, user
     except WebSocketDisconnect:
         # Close the websocket connection if the client disconnects
         print(f"WebSocket disconnected for room {room_id} on page {page}")
-        
+
     except Exception as e:
         print(f"An error occurred: {e}")
         traceback.print_exc()

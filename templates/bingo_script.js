@@ -99,7 +99,7 @@ function startCallingNumbers() {
     if (numberCallInterval) {
         clearInterval(numberCallInterval);
     }
-    numberCallInterval = setInterval(callNumber, 2000); //Llamada de número cada 2 segundos
+    numberCallInterval = setInterval(callNumber, 500); //Llamada de número cada 2 segundos
 }
 
 //Función para animar la llamada de un número
@@ -116,19 +116,19 @@ function callNumber() {
 
     //Tachar el número en el cartón de bingo
     const bingoCells = document.querySelectorAll('.bingo-card td');
-    bingoCells.forEach(cell => {
-        if (cell.textContent === currentNumber.toString()) {
-            const cover = document.createElement('div');
-            cover.classList.add('number-cover');
-            cell.appendChild(cover);
-        }
-    });
 
-    //Comprobar si hay bingo
-    if (checkBingo()) {
-        clearInterval(numberCallInterval);
-        alert('¡Enhorabuena! ¡Has hecho bingo!');
-    }
+
+    if (!checkBingo()) {
+        bingoCells.forEach(cell => {
+            if (cell.textContent === currentNumber.toString()) {
+                const cover = document.createElement('div');
+                cover.classList.add('number-cover');
+                cell.appendChild(cover);
+            }
+        });
+    } else{
+        alert("¡Ganaste!");
+    }   
 }
 
 //Función para comprobar si hay bingo en algún cartón

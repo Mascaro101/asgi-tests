@@ -1,0 +1,33 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Bingo</title>
+    <link rel="stylesheet" href="bingo_styles.css">
+</head>
+<body>
+    <div class="background">
+        <div class="container">
+            <div id="prueba">
+                <div class="bingo-ball" id="bingo-ball"></div>
+            </div>
+            <div id="bingo-cards" class="bingo-cards">
+                <!-- Aquí se generarán los cartones de bingo con JavaScript -->
+            </div>
+        </div>
+        <div class="controls">
+            <label for="num-cards">Número de cartones:</label>
+            <select id="num-cards">
+                <option value="1">1</option>
+                <option value="2">2</option>
+                <option value="3">3</option>
+                <option value="4">4</option>
+            </select>
+            <button onclick="generateCards()">Generar Cartones</button>
+            <button onclick="resetCards()">Reiniciar</button>
+        </div>
+    </div>
+    <script src="bingo_script.js"></script>
+</body>
+</html>

@@ -293,6 +293,11 @@ async def set_username(request: Request, user: User):
     print(f"Username: {username}")
     return username
 
+@app.get("/bingo")
+async def bingo(request: Request):
+    return templates.TemplateResponse("index_bingo.html", {"request": request})
+
+
 # Websocket Endpoint
 @app.websocket("/ws/{page}/{room_id}")
 

@@ -3,9 +3,9 @@ body {
     padding: 0;
     font-family: Arial, sans-serif;
   }
-  
+
   .background {
-    background-image: url('imagenees/fondito_bingo2.png');
+    background-image: url('/static/images/fondito_bingo2.png');
     background-size: cover;
     background-repeat: no-repeat;
     background-position: center;
@@ -15,26 +15,27 @@ body {
     justify-content: center;
     align-items: center;
   }
-  
+
   .container {
     display: flex;
     flex-direction: column;
     align-items: center;
-    margin-top: 50px; 
+    margin-top: 50px;
   }
-  
+
   .bingo-cards {
     display: flex;
+    max-width: 1100px;
     flex-wrap: wrap;
     gap: 20px;
     justify-content: center;
   }
-  
+
   .bingo-card {
     border-collapse: collapse;
     margin-bottom: 20px;
   }
-  
+
   .bingo-card td {
     border: 1px solid black;
     width: 55px;
@@ -43,23 +44,23 @@ body {
     font-size: 20px;
     position: relative;
   }
-  
+
   .bingo-card .initial-cover {
     position: absolute;
     top: 0;
     left: 0;
     width: 100%;
     height: 100%;
-    background-color: rgba(128, 128, 128, 0.5); 
+    background-color: rgba(128, 128, 128, 0.5);
   }
-  
+
   .bingo-card .number-cover {
     position: absolute;
     top: 0;
     left: 0;
     width: 100%;
     height: 100%;
-    background-color: rgba(255, 0, 0, 0.5); 
+    background-color: rgba(255, 0, 0, 0.5);
     display: flex;
     align-items: center;
     justify-content: center;
@@ -67,7 +68,7 @@ body {
     font-weight: bold;
     font-size: 24px;
   }
-  
+
   .bingo-ball {
     display: flex;
     justify-content: center;
@@ -84,7 +85,7 @@ body {
     margin-bottom: 20px;
     animation: bounce 0.5s ease infinite alternate;
   }
-  
+
   @keyframes bounce {
     from {
       transform: translateY(-10px);
@@ -93,11 +94,10 @@ body {
       transform: translateY(0);
     }
   }
-  
+
   .controls {
     display: flex;
     flex-direction: column;
     align-items: center;
     gap: 10px;
   }
-  

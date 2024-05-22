@@ -1,12 +1,14 @@
 from fastapi import FastAPI, WebSocket, Request, WebSocketDisconnect, BackgroundTasks, Form, Query
 from fastapi.responses import HTMLResponse, RedirectResponse
 from fastapi.templating import Jinja2Templates
-from starlette.responses import FileResponse, JSONResponse
+from fastapi.staticfiles import StaticFiles
+from starlette.responses import FileResponse
 from starlette.middleware.sessions import SessionMiddleware
 from starlette.middleware.cors import CORSMiddleware
 
 import aiomysql
 import asyncio
+import random
 import traceback
 import shortuuid
 import json
@@ -81,7 +83,7 @@ async def insert_room_sync(room_id, player_1):
     finally:
         connection.close()
 
-# Function to get the player_1 from the rooms table	
+# Function to get the player_1 from the rooms table
 async def get_player_one(room_id):
     connection = await get_db_connection()
     try:
@@ -95,7 +97,7 @@ async def get_player_one(room_id):
     finally:
         connection.close()
 
-# Function to get the player_2 from the rooms table	
+# Function to get the player_2 from the rooms table
 async def get_player_two(room_id):
     connection = await get_db_connection()
     try:
@@ -153,7 +155,7 @@ async def insert_room_move(room_id, move, position):
     finally:
         connection.close()
 
-# Function to join a room from room_id 
+# Function to join a room from room_id
 async def join_room_sync(room_id: str, player_2: str):
     connection = await get_db_connection()
     try:
@@ -293,10 +295,39 @@ async def set_username(request: Request, user: User):
     print(f"Username: {username}")
     return username
 
+# Serve static files
+app.mount("/static", StaticFiles(directory="/home/mascaro101/casino_asgi/templates/static"), name="static")
+
+# Bingo game route
 @app.get("/bingo")
 async def bingo(request: Request):
+
     return templates.TemplateResponse("index_bingo.html", {"request": request})
 
+@app.post("/generate_bingo_number")
+def generate_bingo_number():
+    number = random.randint(0,99)
+    return {"number": number}
+
+@app.get("/random_test")
+async def test(request: Request):
+    return templates.TemplateResponse("random_number.html", {"request": request})
+
+@app.websocket("/ws/random_test")
+async def rand_test_websoclet(websocket: WebSocket):
+    await websocket.accept()
+    try:
+        data = await asyncio.wait_for(websocket.recieve_json(), timeout=1)
+        message = data["message"]
+        print(message)
+        return message
+    except:
+        pass
+
+@app.post("/generate-number")
+def generate_number():
+    number = random.randint(0, 100)
+    return {"number": number}
 
 # Websocket Endpoint
 @app.websocket("/ws/{page}/{room_id}")
@@ -348,7 +379,7 @@ async def websocket_endpoint(websocket: WebSocket, page: str, room_id: str, user
     except WebSocketDisconnect:
         # Close the websocket connection if the client disconnects
         print(f"WebSocket disconnected for room {room_id} on page {page}")
-        
+
     except Exception as e:
         print(f"An error occurred: {e}")
         traceback.print_exc()

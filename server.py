@@ -301,13 +301,21 @@ app.mount("/static", StaticFiles(directory="/home/mascaro101/casino_asgi/templat
 # Bingo game route
 @app.get("/bingo")
 async def bingo(request: Request):
-
+    request.session["bingo_numbers"] = []
     return templates.TemplateResponse("index_bingo.html", {"request": request})
 
 @app.post("/generate_bingo_number")
-def generate_bingo_number():
-    number = random.randint(0,99)
+def generate_number(request: Request):
+    used_numbers = request.session["bingo_numbers"]
+    number = random.randint(0, 100)
+
+    while number in used_numbers:
+        number = random.randint(0, 100)
+
+    used_numbers.append(number)
     return {"number": number}
+
+
 
 # Websocket Endpoint
 @app.websocket("/ws/{page}/{room_id}")

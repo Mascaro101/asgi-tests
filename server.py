@@ -309,26 +309,6 @@ def generate_bingo_number():
     number = random.randint(0,99)
     return {"number": number}
 
-@app.get("/random_test")
-async def test(request: Request):
-    return templates.TemplateResponse("random_number.html", {"request": request})
-
-@app.websocket("/ws/random_test")
-async def rand_test_websoclet(websocket: WebSocket):
-    await websocket.accept()
-    try:
-        data = await asyncio.wait_for(websocket.recieve_json(), timeout=1)
-        message = data["message"]
-        print(message)
-        return message
-    except:
-        pass
-
-@app.post("/generate-number")
-def generate_number():
-    number = random.randint(0, 100)
-    return {"number": number}
-
 # Websocket Endpoint
 @app.websocket("/ws/{page}/{room_id}")
 

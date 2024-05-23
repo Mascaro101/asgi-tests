@@ -56,8 +56,9 @@ async def join_bingo_room_sync(room_id: str, player_2: str):
                 "UPDATE bingo_rooms SET player_2 = %s WHERE room_id = %s",
                 (player_2, room_id)
             )
-            set_room_active(room_id)
             await connection.commit()
+
+        await set_room_active(room_id)
     finally:
         connection.close()
 
@@ -140,6 +141,19 @@ async def set_room_active(room_id):
                     (1, room_id)
                 )
             await connection.commit()
+    finally:
+        connection.close()
+
+async def is_room_active(room_id):
+    connection = await get_db_connection()
+    try:
+        async with connection.cursor() as cursor:
+            await cursor.execute("SELECT room_active FROM bingo_rooms WHERE room_id = %s", (room_id,))
+            result = await cursor.fetchone()
+            if result == 1:
+                return True
+            else:
+                return False
     finally:
         connection.close()
 

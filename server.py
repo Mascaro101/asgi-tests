@@ -14,8 +14,9 @@ import json
 
 from db import (create_rooms_table, create_room_moves_table,
                 insert_room_sync, join_room_sync, insert_room_move,
-                get_player_one, get_player_two, have_both_moved, create_bingo_rooms_table, insert_bingo_room_sync,
-                get_bingo_player_one, get_bingo_player_two, join_bingo_room_sync, set_room_active)
+                get_player_one, get_player_two, have_both_moved, create_bingo_rooms_table,
+                insert_bingo_room_sync, get_bingo_player_one, get_bingo_player_two,
+                join_bingo_room_sync, is_room_active)
 
 
 from pydantic import BaseModel
@@ -205,6 +206,9 @@ async def join_bingo_session(request: Request, background_tasks: BackgroundTasks
     # Return a redirect response to the URL
     return RedirectResponse(url=redirect_url, status_code=303)
 
+async def redirect_bingo_mp():
+    return templates.TemplateResponse("index_bingo.html")
+
 # Websocket Endpoint
 @app.websocket("/ws/{page}/{room_id}")
 
@@ -266,8 +270,12 @@ async def websocket_endpoint(websocket: WebSocket, page: str, room_id: str, user
                     position = 2
 
                 # Construct the JSON data to send to the client and send it
-                data_to_send = json.dumps({"room": room, "player_1": player_1, "player_2": player_2})
+                data_to_send = json.dumps({"room": room, "player_1": player_1, "player_2": player_2,"redirect": True,"url": "/bingo_mp/"})
                 await websocket.send_text(data_to_send)
+
+                if is_room_active(room_id):
+                    await websocket.close()
+                    return RedirectResponse(url='/bingo')
 
                 # Pause for 2 seconds before the next iteration
                 await asyncio.sleep(2)

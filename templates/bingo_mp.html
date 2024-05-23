@@ -1,25 +1,41 @@
 <!DOCTYPE html>
-<html>
-    <head>
-        <meta charset="utf-8">
-        <meta http-equiv="X-UA-Compatible" content="IE=edge">
-        <title>PPT ONLINE</title>
-        <meta name="description" content="">
-        <meta name="viewport" content="width=device-width, initial-scale=1">
-        <link rel="stylesheet" href="">
-    </head>
-    <body>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Bingo</title>
+    <link rel="stylesheet" href="/static/css/bingo_styles.css">
+    <script src="/static/js/bingo_script.js"></script>
+</head>
+<body>
+    <div class="background">
+        <div class="container">
+            <div id="prueba">
+                <div class="bingo-ball" id="bingo-ball"></div>
+            </div>
+            <div id="bingo-cards" class="bingo-cards">
+            </div>
+        </div>
+        <div class="controls">
+            <label for="num-cards">Número de cartones:</label>
+            <select id="num-cards">
+                <option value="1">1</option>
+                <option value="2">2</option>
+                <option value="3">3</option>
+                <option value="4">4</option>
+            </select>
+            <button onclick="generateCards()">Generar Cartones</button>
+            <button onclick="resetCards()">Reiniciar</button>
 
-        <h1 id="room_id">Waiting for a number...</h1>
-        <h1 id="player_1">Player 1</h1>
-        <h1 id="player_2">Player 2</h1>
-
-
-
-
-        <script>
-            // Function to extract the room_id from the URL
-            function getRoomIdFromPath() {
+            <h3 id="room_id">Waiting for a number...</h3>
+            <h3 id="player_1">Player 1</h3>
+            <h3 id="player_2">Player 2</h3>
+        </div>
+    </div>
+    <script src="bingo_script.js"></script>
+    <script>
+        // Function to extract the room_id from the URL
+        function getRoomIdFromPath() {
                 const pathSegments = window.location.pathname.split('/');
                 return pathSegments[pathSegments.length - 1];
             }
@@ -94,10 +110,6 @@
             window.addEventListener('beforeunload', function() {
                 disconnectWebSocket();
             });
-
-        </script>
-
-
-
-        <script src="" async defer></script>
-    </body>
+    </script>
+</body>
+</html>

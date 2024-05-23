@@ -11,22 +11,14 @@
     <body>
         <h1>Username: {{USERNAME}}</h1>
 
-        <form action="/join_session" method="post">
+        <form action="/join_bingo_mp" method="post">
             <h1>Join Room</h1>
             <input type="text" name="room_id" placeholder="Enter Room ID" required>
             <button type="submit">Join Room</button>
         </form>
 
-        <form action="/create_session">
-            <button>Create Lobby</button>
-        </form>
-
-        <form action="/bingo">
-            <button>Bingo</button>
-        </form>
-
-        <form action="/bingo_menu">
-            <button> Bingo Multiplayer</button>
+        <form action="/bingo_mp">
+            <button>Create Bingo Lobby</button>
         </form>
 
         <script src="" async defer></script>

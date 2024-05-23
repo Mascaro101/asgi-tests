@@ -28,6 +28,86 @@ async def create_rooms_table():
     finally:
         connection.close()
 
+# Create Bingo Rooms Table
+async def create_bingo_rooms_table():
+    connection = await get_db_connection()
+    try:
+        async with connection.cursor() as cursor:
+            await cursor.execute('''
+                CREATE TABLE IF NOT EXISTS bingo_rooms (
+                    room_id VARCHAR(100) PRIMARY KEY,
+                    room_active TINYINT,
+                    bingo_number VARCHAR(100),
+                    player_1 VARCHAR(100) NOT NULL,
+                    player_2 VARCHAR(100),
+                    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+                )
+            ''')
+            await connection.commit()
+    finally:
+        connection.close()
+
+# Function to join a bingo room from room_id
+async def join_bingo_room_sync(room_id: str, player_2: str):
+    connection = await get_db_connection()
+    try:
+        async with connection.cursor() as cursor:
+            await cursor.execute(
+                "UPDATE bingo_rooms SET player_2 = %s WHERE room_id = %s",
+                (player_2, room_id)
+            )
+            set_room_active(room_id)
+            await connection.commit()
+    finally:
+        connection.close()
+
+# Function to insert a new bingo room into the rooms table
+async def insert_bingo_room_sync(room_id, player_1):
+    connection = await get_db_connection()
+    try:
+        async with connection.cursor() as cursor:
+            # First INSERT statement
+            await cursor.execute(
+                "INSERT INTO bingo_rooms (room_id, player_1, player_2) VALUES (%s, %s, %s)",
+                (room_id, player_1, "Waiting For Player 2")
+            )
+            # Commit the transaction
+            await connection.commit()
+    except aiomysql.Error as e:
+        print(f"An error occurred: {e}")
+        await connection.rollback()
+    finally:
+        connection.close()
+
+# Function to get the player_2 from the rooms table
+async def get_bingo_player_two(room_id):
+    connection = await get_db_connection()
+    try:
+        async with connection.cursor() as cursor:
+            await cursor.execute("SELECT player_2 FROM bingo_rooms WHERE room_id = %s", (room_id,))
+            result = await cursor.fetchone()
+            if result:
+                return result['player_2']
+            else:
+                return "No room found with the given ID"
+    finally:
+        connection.close()
+
+# Function to get the bingo player_1 from the rooms table
+async def get_bingo_player_one(room_id):
+    connection = await get_db_connection()
+    try:
+        async with connection.cursor() as cursor:
+            await cursor.execute("SELECT player_1 FROM bingo_rooms WHERE room_id = %s", (room_id,))
+            result = await cursor.fetchone()
+            if result:
+                return result['player_1']
+            else:
+                return "No room found with the given ID"
+    finally:
+        connection.close()
+
+
 # Function to insert a new room into the rooms table
 async def insert_room_sync(room_id, player_1):
     connection = await get_db_connection()
@@ -40,14 +120,26 @@ async def insert_room_sync(room_id, player_1):
             )
             # Second INSERT statement
             await cursor.execute(
-                "INSERT INTO room_moves (room_id, player_1_moves, player_2_moves) VALUES (%s, %s, %s)",
-                (room_id, "No Moves", "No Moves")
+                "INSERT INTO room_moves (room_id, room_active, player_1_moves, player_2_moves) VALUES (%s, %s, %s, %s)",
+                (room_id, 0, "No Moves", "No Moves")
             )
             # Commit the transaction
             await connection.commit()
     except aiomysql.Error as e:
         print(f"An error occurred: {e}")
         await connection.rollback()
+    finally:
+        connection.close()
+
+async def set_room_active(room_id):
+    connection = await get_db_connection()
+    try:
+        async with connection.cursor() as cursor:
+            await cursor.execute(
+                    "UPDATE bingo_rooms SET room_active = %s WHERE room_id = %s",
+                    (1, room_id)
+                )
+            await connection.commit()
     finally:
         connection.close()
 

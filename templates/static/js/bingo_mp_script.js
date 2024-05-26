@@ -1,3 +1,7 @@
+function testFunc(){
+    console.log("Pene")
+}
+
 //Función para generar múltiples cartones de bingo
 function generateCards() {
     const numCards = document.getElementById('num-cards').value;
@@ -94,21 +98,52 @@ let currentNumber = 0;
 const numbersCalled = [];
 let numberCallInterval;
 
+//Función para iniciar la llamada de números
 function startCallingNumbers() {
     if (numberCallInterval) {
         clearInterval(numberCallInterval);
     }
-    callNumber().catch(error => console.error(error));
+    numberCallInterval = setInterval(callNumber, 2000); //Llamada de número cada 2 segundos
+}
+
+async function generateNextNumber{
+    // Generar un nuevo número aleatorio no llamado antes
+    do {
+        // Prepare data to send with POST request
+        const postData = {
+            room_id: getRoomIdFromPath()
+        };
+
+        const response = await fetch("/generate_next_number", {
+            method: "POST",
+            headers: {
+                'Content-Type': 'application/json'  // Set content type to JSON
+            },
+            body: JSON.stringify(postData)  // Send JSON string with room_id
+        });
+
 }
 
 //Función para animar la llamada de un número
-async function callNumber() {
+async function callNumber(roomId) {
     const ball = document.getElementById('bingo-ball');
+    console.log(getRoomIdFromPath())
 
-    //Generar un nuevo número aleatorio no llamado antes
+    // Generar un nuevo número aleatorio no llamado antes
     do {
+        // Prepare data to send with POST request
+        const postData = {
+            room_id: getRoomIdFromPath()
+        };
 
-        const response = await fetch("/generate_bingo_number", {method: "POST"});
+        const response = await fetch("/pull_bingo_number", {
+            method: "POST",
+            headers: {
+                'Content-Type': 'application/json'  // Set content type to JSON
+            },
+            body: JSON.stringify(postData)  // Send JSON string with room_id
+        });
+
         const data = await response.json();
         console.log(data.number);
 
@@ -119,9 +154,8 @@ async function callNumber() {
     ball.textContent = currentNumber;
     numbersCalled.push(currentNumber);
 
-    //Tachar el número en el cartón de bingo
+    // Tachar el número en el cartón de bingo
     const bingoCells = document.querySelectorAll('.bingo-card td');
-
 
     if (!checkBingo()) {
         bingoCells.forEach(cell => {
@@ -131,7 +165,7 @@ async function callNumber() {
                 cell.appendChild(cover);
             }
         });
-    } else{
+    } else {
         alert("¡Ganaste!");
     }
 }

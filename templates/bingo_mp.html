@@ -5,7 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Bingo</title>
     <link rel="stylesheet" href="/static/css/bingo_styles.css">
-    <script src="/static/js/bingo_script.js"></script>
+    <script src="/static/js/bingo_mp_script.js"></script>
 </head>
 <body>
     <div class="background">
@@ -24,92 +24,340 @@
                 <option value="3">3</option>
                 <option value="4">4</option>
             </select>
-            <button onclick="generateCards()">Generar Cartones</button>
-            <button onclick="resetCards()">Reiniciar</button>
+            <button onclick="start_game()" id="start">Generar Cartones</button>
+            <button onclick="resetCards()" id="reset">Reiniciar</button>
 
             <h3 id="room_id">Waiting for a number...</h3>
             <h3 id="player_1">Player 1</h3>
             <h3 id="player_2">Player 2</h3>
         </div>
     </div>
-    <script src="bingo_script.js"></script>
     <script>
-        // Function to extract the room_id from the URL
-        function getRoomIdFromPath() {
-                const pathSegments = window.location.pathname.split('/');
-                return pathSegments[pathSegments.length - 1];
+        let cardsGenerated = false;
+        let room_id = null;
+
+        function testFunc(){
+            console.log("Pene")
+        }
+
+        //Función para generar múltiples cartones de bingo
+        function generateCards() {
+            const numCards = document.getElementById('num-cards').value;
+            const bingoCardsContainer = document.getElementById('bingo-cards');
+            bingoCardsContainer.innerHTML = '';
+
+            for (let i = 0; i < numCards; i++) {
+                const card = generateCard();
+                bingoCardsContainer.appendChild(card);
             }
 
-            // Declare Socket Global
-            let socket = null;
+            //Iniciar la llamada de números
+            startCallingNumbers();
+        }
 
-            // Get username from session storage and log it
-            const username = sessionStorage.getItem("username")
-            console.log("Username from Storage:", username)
+        //Función para generar un cartón de bingo único
+        function generateCard() {
+            const numbers = [];
 
-            // Function to establish the WebSocket connection
-            function establishConnection(roomId, username) {
-
-                // Encode the username before sending it to the server
-                console.log("Before Encode:", sessionStorage.getItem("username"))
-                const encodedUsername = encodeURIComponent(sessionStorage.getItem("username"));
-
-                // Establish the WebSocket connection with the server
-                socket = new WebSocket(`wss://mascaro101.pythonanywhere.com/ws/bingo_mp/${roomId}?username=${encodedUsername}`);
-                socket.onopen = function(event) {
-                    console.log("WebSocket connection established with room:", roomId);
-                };
-
-                // On recieve message from server
-                socket.onmessage = function(event) {
-                    console.log("Message from server:", event.data);
-                    try {
-                        // Parse the JSON data received from the server
-                        const data = JSON.parse(event.data);
-
-                        // Extract room and player information from the parsed data
-                        const room = data.room;
-                        const player_1 = data.player_1;
-                        const player_2 = data.player_2;
-
-                        // Update the DOM elements or handle the data as needed
-                        document.getElementById('room_id').textContent = room;
-                        document.getElementById('player_1').textContent = player_1;
-                        document.getElementById('player_2').textContent = player_2;
-
-                    } catch (error) {
-                        console.error("Error parsing JSON from server:", error);
-                    }
-                };
-
-                socket.onerror = function(event) {
-                    console.error("WebSocket error observed:", event);
-                };
-
-                socket.onclose = function(event) {
-                    console.log("WebSocket connection closed:", event.reason);
-                };
+            //Generar números para cada columna del cartón
+            for (let i = 0; i < 9; i++) {
+                const column = [];
+                //Generar números en el rango correspondiente a la columna
+                for (let j = i * 10 + 1; j <= (i + 1) * 10; j++) {
+                    column.push(j);
+                }
+                //Mezclar los números de la columna
+                shuffleArray(column);
+                //Agregar los números al arreglo principal
+                numbers.push(...column);
             }
 
-            // Function to disconnect the WebSocket
-            function disconnectWebSocket() {
-                if (socket) {
-                    socket.close(1000, "Closing connection normally");
+            //Mezclar todos los números del cartón
+            shuffleArray(numbers);
+
+            //Elegir aleatoriamente 12 posiciones para cubrir
+            const coveredIndices = [];
+            while (coveredIndices.length < 12) {
+                const index = Math.floor(Math.random() * 27); //Hay 27 celdas en total
+                if (!coveredIndices.includes(index)) {
+                    coveredIndices.push(index);
                 }
             }
 
-            // Establish and Handle websocket based on data from roomID
-            const roomId = getRoomIdFromPath();
-            if (roomId) {
-                establishConnection(roomId);
-            } else {
-                console.error('Room ID is missing from the URL');
+            //Crear la tabla del cartón de bingo
+            const table = document.createElement('table');
+            table.classList.add('bingo-card');
+            const tbody = document.createElement('tbody');
+
+            let counter = 0;
+            for (let i = 0; i < 3; i++) {
+                const row = document.createElement('tr');
+                for (let j = 0; j < 9; j++) {
+                    const cell = document.createElement('td');
+                    if (coveredIndices.includes(counter)) { //Comprobar si la celda debe estar cubierta
+                        const cover = document.createElement('div');
+                        cover.classList.add('initial-cover');
+                        cell.appendChild(cover);
+                    } else {
+                        cell.textContent = numbers[counter];
+                    }
+                    row.appendChild(cell);
+                    counter++;
+                }
+                tbody.appendChild(row);
             }
 
-            // Disconect websocket once page is closed
-            window.addEventListener('beforeunload', function() {
-                disconnectWebSocket();
-            });
+            table.appendChild(tbody);
+            return table;
+        }
+
+        //Función para mezclar un arreglo usando el algoritmo de Fisher-Yates (mezcla aleatoria)
+        function shuffleArray(array) {
+            for (let i = array.length - 1; i > 0; i--) {
+                const j = Math.floor(Math.random() * (i + 1));
+                [array[i], array[j]] = [array[j], array[i]];
+            }
+        }
+
+        //Función para reiniciar los cartones de bingo
+        function resetCards() {
+            const bingoCardsContainer = document.getElementById('bingo-cards');
+            bingoCardsContainer.innerHTML = '';
+            numbersCalled.length = 0;
+            currentNumber = 0;
+            if (numberCallInterval) {
+                clearInterval(numberCallInterval);
+            }
+            document.getElementById('bingo-ball').textContent = '';
+        }
+
+        //Variables para mantener el estado del juego
+        let currentNumber = 0;
+        const numbersCalled = [];
+        let numberCallInterval;
+
+        //Función para iniciar la llamada de números
+        function startCallingNumbers() {
+            if (numberCallInterval) {
+                clearInterval(numberCallInterval);
+            }
+            if (isHost){
+                generateNextNumber()
+            }
+            numberCallInterval = setInterval(callNumber, 2000);
+        }
+
+        async function generateNextNumber() {
+            // Generar un nuevo número aleatorio no llamado antes
+            do {
+                // Prepare data to send with POST request
+                const postData = {
+                    room_id: getRoomIdFromPath()
+                };
+
+                const response = await fetch("/generate_next_number", {
+                    method: "POST",
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify(postData)
+                });
+
+            } while (numbersCalled.includes(currentNumber));
+        }
+
+        //Función para animar la llamada de un número
+        async function callNumber(roomId) {
+            const ball = document.getElementById('bingo-ball');
+            console.log(getRoomIdFromPath())
+
+            // Generar un nuevo número aleatorio no llamado antes
+            do {
+                // Prepare data to send with POST request
+                const postData = {
+                    room_id: getRoomIdFromPath()
+                };
+
+                const response = await fetch("/pull_bingo_number", {
+                    method: "POST",
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify(postData)
+                });
+
+                const data = await response.json();
+                console.log(data.number);
+
+                currentNumber = data.number;
+
+            } while (numbersCalled.includes(currentNumber));
+
+            ball.textContent = currentNumber;
+            numbersCalled.push(currentNumber);
+
+            // Tachar el número en el cartón de bingo
+            const bingoCells = document.querySelectorAll('.bingo-card td');
+
+            if (!checkBingo()) {
+                bingoCells.forEach(cell => {
+                    if (cell.textContent === currentNumber.toString()) {
+                        const cover = document.createElement('div');
+                        cover.classList.add('number-cover');
+                        cell.appendChild(cover);
+                    }
+                });
+            } else {
+                alert("¡Ganaste!");
+            }
+        }
+
+        //Función para comprobar si hay bingo en algún cartón
+        function checkBingo() {
+            const cards = document.querySelectorAll('.bingo-card');
+            for (const card of cards) {
+                const cells = card.querySelectorAll('td');
+                let allCovered = true;
+                for (const cell of cells) {
+                    if (cell.textContent !== '' && !cell.querySelector('.initial-cover') && !cell.querySelector('.number-cover')) {
+                        allCovered = false;
+                        break;
+                    }
+                }
+                if (allCovered) {
+                    return true;
+                }
+            }
+            return false;
+        }
+
+        function start_game(){
+            if (socket && socket.readyState === WebSocket.OPEN) {
+                    // Send the move to the server and log it
+                    socket.send(JSON.stringify({"start_game": true}));
+                    console.log("start_game", true);
+                } else {
+                    console.log('WebSocket is not open. Cannot send move.');
+                }
+            }
+
+        // Function to extract the room_id from the URL
+        function getRoomIdFromPath() {
+                const pathSegments = window.location.pathname.replace("_h", "").split('/');
+                return pathSegments[pathSegments.length - 1];
+            }
+
+        function isHost() {
+            const path = window.location.pathname;
+            if (path.includes("_h")) {
+                return true;
+            } else {
+                return false;
+            }
+        }
+
+        // Declare Socket Global
+        let socket = null;
+
+        // Get username from session storage and log it
+        const username = sessionStorage.getItem("username")
+        console.log("Username from Storage:", username)
+
+        // Function to establish the WebSocket connection
+            function establishConnection(roomId, username) {
+
+        // Encode the username before sending it to the server
+        console.log("Before Encode:", sessionStorage.getItem("username"))
+        const encodedUsername = encodeURIComponent(sessionStorage.getItem("username"));
+
+        // Establish the WebSocket connection with the server
+        socket = new WebSocket(`wss://mascaro101.pythonanywhere.com/ws/bingo_mp/${roomId}?username=${encodedUsername}`);
+        socket.onopen = function(event) {
+            console.log("WebSocket connection established with room:", roomId);
+        };
+
+        // On recieve message from server
+        socket.onmessage = function(event) {
+            console.log("Message from server:", event.data);
+            try {
+                // Parse the JSON data received from the server
+                const data = JSON.parse(event.data);
+
+                // Extract room and player information from the parsed data
+                room = data.room;
+                const player_1 = data.player_1;
+                const player_2 = data.player_2;
+                const number = data.number;
+                const bingo_status = data.game_status;
+                console.log("NUMBER FROM SERVER", number)
+
+                // Update the DOM elements or handle the data as needed
+                document.getElementById('room_id').textContent = room;
+                document.getElementById('player_1').textContent = player_1;
+                document.getElementById('player_2').textContent = player_2;
+
+                if (bingo_status == true && !cardsGenerated){
+                    generateCards();
+                    cardsGenerated = true;
+                }
+
+
+                if (isHost){
+                    if (socket && socket.readyState === WebSocket.OPEN) {
+                        // Send the move to the server and log it
+                        socket.send(JSON.stringify({"game_status": true, "host": isHost()}));
+                        console.log("host", isHost());
+                    }else {
+                        console.log('WebSocket is not open. Cannot send move.');
+                    }
+                }
+
+            } catch (error) {
+                console.error("Error parsing JSON from server:", error);
+            }
+        };
+
+        socket.onerror = function(event) {
+            console.error("WebSocket error observed:", event);
+        };
+
+        socket.onclose = function(event) {
+            console.log("WebSocket connection closed:", event.reason);
+        };
+    }
+
+    // Function to disconnect the WebSocket
+    function disconnectWebSocket() {
+        if (socket) {
+            socket.close(1000, "Closing connection normally");
+        }
+    }
+
+    window.onload = function() {
+    const roomId = getRoomIdFromPath();
+    const host = isHost();
+
+    if (!host){
+        let start = document.getElementById("start");
+        let reset = document.getElementById("reset");
+        start.remove();
+        reset.remove();
+    }
+
+        if (roomId) {
+            establishConnection(roomId);
+            console.log("is Host:", host)
+        } else {
+            console.error('Room ID is missing from the URL');
+        }
+    }
+
+    // Disconect websocket once page is closed
+    window.addEventListener('beforeunload', function() {
+    disconnectWebSocket();
+    });
     </script>
 </body>
 </html>
+
+

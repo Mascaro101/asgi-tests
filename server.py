@@ -1,4 +1,4 @@
-from fastapi import FastAPI, WebSocket, Request, WebSocketDisconnect, BackgroundTasks, Form, Query
+from fastapi import FastAPI, WebSocket, Request, WebSocketDisconnect, BackgroundTasks, Form, Query, HTTPException
 from fastapi.responses import HTMLResponse, RedirectResponse
 from fastapi.templating import Jinja2Templates
 from fastapi.staticfiles import StaticFiles
@@ -16,7 +16,7 @@ from db import (create_rooms_table, create_room_moves_table,
                 insert_room_sync, join_room_sync, insert_room_move,
                 get_player_one, get_player_two, have_both_moved, create_bingo_rooms_table,
                 insert_bingo_room_sync, get_bingo_player_one, get_bingo_player_two,
-                join_bingo_room_sync, is_room_active)
+                join_bingo_room_sync, is_room_active, insert_bingo_number, set_room_active, get_bingo_number)
 
 
 from pydantic import BaseModel
@@ -149,6 +149,29 @@ async def bingo(request: Request):
     request.session["bingo_numbers"] = []
     return templates.TemplateResponse("index_bingo.html", {"request": request})
 
+
+@app.post("/generate_next_number")
+async def generate_next_number(request: Request):
+    data = await request.json()
+    room_id = data['room_id']
+
+    bingo_number = random.randint(0,90)
+    await insert_bingo_number(room_id, bingo_number)
+
+@app.post("/pull_bingo_number")
+async def pull_bingo_number(request: Request):
+    try:
+        data = await request.json()  # Get data from JSON body
+        room_id = data['room_id']
+        number = await get_bingo_number(room_id)
+        print("Room:", room_id, "Number:", number)
+        return {"number": number}
+
+    except KeyError:
+        raise HTTPException(status_code=400, detail="Room ID is missing.")
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=str(e))
+
 @app.post("/generate_bingo_number")
 def generate_number(request: Request):
     used_numbers = request.session["bingo_numbers"]
@@ -163,6 +186,7 @@ def generate_number(request: Request):
 # Create_Bingo_Session Route
 @app.get("/bingo_mp")
 async def bingo_mp(request: Request, background_tasks: BackgroundTasks):
+    request.session["bingo_numbers"] = []
     ## If room is created after another user has been created in the same browser player1 = player2 -- ERROR
 
    # Generate a random room ID from ShortUUID
@@ -176,14 +200,19 @@ async def bingo_mp(request: Request, background_tasks: BackgroundTasks):
     # Create the room with the room_id and the Host
     background_tasks.add_task(insert_bingo_room_sync, room_id, user)
 
-    # Append the token to the URL and redirect to the create_session page
-    redirect_url = f"/bingo_mp/{room_id}"
+    if await get_bingo_player_one(room_id) != None:
+        redirect_url = f"/bingo_mp/{room_id}_h"
+    else:
+        # Append the token to the URL and redirect to the create_session page
+        redirect_url = f"/bingo_mp/{room_id}"
+
     return RedirectResponse(url=redirect_url)
 
 # Bingo game route
 @app.get("/bingo_menu")
 async def bingo_menu(request: Request):
-    return templates.TemplateResponse("bingo_menu.html", {"request": request})
+    username = request.session.get("username", "guest")
+    return templates.TemplateResponse("bingo_menu.html", {"request": request, "USERNAME": username})
 
 # Create_Bingo_Session with Token Route redirect
 @app.get("/bingo_mp/{room_id}")
@@ -206,9 +235,6 @@ async def join_bingo_session(request: Request, background_tasks: BackgroundTasks
     # Return a redirect response to the URL
     return RedirectResponse(url=redirect_url, status_code=303)
 
-async def redirect_bingo_mp():
-    return templates.TemplateResponse("index_bingo.html")
-
 # Websocket Endpoint
 @app.websocket("/ws/{page}/{room_id}")
 
@@ -222,6 +248,7 @@ async def websocket_endpoint(websocket: WebSocket, page: str, room_id: str, user
     # Debug print the username and Initialize the position
     print("Recieved WS Username:", username)
     position = 0
+    bingo_status = False
     print(page)
     try:
         # Loop to receive data from the client and Update the page with the room details
@@ -258,27 +285,39 @@ async def websocket_endpoint(websocket: WebSocket, page: str, room_id: str, user
                     # Pause for 2 seconds before the next iteration
                     await asyncio.sleep(2)
             elif page == "bingo_mp":
-                # Fetch room details from the database and send it to the client
-                room = room_id
-                player_1 = await get_bingo_player_one(room_id)
-                player_2 = await get_bingo_player_two(room_id)
+                try:
+                     # Await the data from the client, then insert the move into the database. Timeout 0.1 seconds
+                    data = await asyncio.wait_for(websocket.receive_json(), timeout=0.1)
 
-                # Calculate the position of the player
-                if player_1 == username:
-                    position = 1
-                else:
-                    position = 2
+                    if "start_game" in data:
+                        bingo_status = True
+                        await set_room_active(room_id)
+                    else:
+                        bingo_status = False
 
-                # Construct the JSON data to send to the client and send it
-                data_to_send = json.dumps({"room": room, "player_1": player_1, "player_2": player_2,"redirect": True,"url": "/bingo_mp/"})
-                await websocket.send_text(data_to_send)
+                    if await is_room_active(room_id):
+                        bingo_status = True
 
-                if is_room_active(room_id):
-                    await websocket.close()
-                    return RedirectResponse(url='/bingo')
+                    if data:
+                        print(f"Received data: {data}")
 
-                # Pause for 2 seconds before the next iteration
-                await asyncio.sleep(2)
+
+                except asyncio.TimeoutError:
+                    # Fetch room details from the database and send it to the client
+                    room = room_id
+                    player_1 = await get_bingo_player_one(room_id)
+                    player_2 = await get_bingo_player_two(room_id)
+                    bingo_status = await is_room_active(room_id)
+                    number = await get_bingo_number(room_id)
+
+
+                    # Construct the JSON data to send to the client and send it
+                    data_to_send = json.dumps({"room": room, "player_1": player_1, "player_2": player_2, "game_status": bingo_status, "number": number})
+                    await websocket.send_text(data_to_send)
+
+
+                    # Pause for 2 seconds before the next iteration
+                    await asyncio.sleep(2)
 
     except WebSocketDisconnect:
         # Close the websocket connection if the client disconnects

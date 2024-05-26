@@ -57,8 +57,6 @@ async def join_bingo_room_sync(room_id: str, player_2: str):
                 (player_2, room_id)
             )
             await connection.commit()
-
-        await set_room_active(room_id)
     finally:
         connection.close()
 
@@ -69,8 +67,8 @@ async def insert_bingo_room_sync(room_id, player_1):
         async with connection.cursor() as cursor:
             # First INSERT statement
             await cursor.execute(
-                "INSERT INTO bingo_rooms (room_id, player_1, player_2) VALUES (%s, %s, %s)",
-                (room_id, player_1, "Waiting For Player 2")
+                "INSERT INTO bingo_rooms (room_id, room_active, bingo_number, player_1, player_2) VALUES (%s, %s, %s, %s, %s)",
+                (room_id, 0, "!", player_1, "Waiting For Player 2")
             )
             # Commit the transaction
             await connection.commit()
@@ -108,6 +106,21 @@ async def get_bingo_player_one(room_id):
     finally:
         connection.close()
 
+# Function to insert a new move into the room_moves table
+async def insert_bingo_number(room_id, number):
+    connection = await get_db_connection()
+    print("Started Insert to", room_id)
+    try:
+        async with connection.cursor() as cursor:
+            await cursor.execute(
+                "UPDATE bingo_rooms SET bingo_number = %s WHERE room_id = %s",
+                (number, room_id)
+            )
+
+            await connection.commit()
+    finally:
+        connection.close()
+
 
 # Function to insert a new room into the rooms table
 async def insert_room_sync(room_id, player_1):
@@ -121,8 +134,8 @@ async def insert_room_sync(room_id, player_1):
             )
             # Second INSERT statement
             await cursor.execute(
-                "INSERT INTO room_moves (room_id, room_active, player_1_moves, player_2_moves) VALUES (%s, %s, %s, %s)",
-                (room_id, 0, "No Moves", "No Moves")
+                "INSERT INTO room_moves (room_id, player_1_moves, player_2_moves) VALUES (%s, %s, %s)",
+                (room_id, "No Moves", "No Moves")
             )
             # Commit the transaction
             await connection.commit()
@@ -144,16 +157,25 @@ async def set_room_active(room_id):
     finally:
         connection.close()
 
+async def get_bingo_number(room_id):
+    connection = await get_db_connection()
+    try:
+        async with connection.cursor() as cursor:
+            await cursor.execute("SELECT bingo_number FROM bingo_rooms WHERE room_id = %s", (room_id,))
+            result = await cursor.fetchone()
+            return result["bingo_number"]
+    finally:
+        connection.close()
+
 async def is_room_active(room_id):
     connection = await get_db_connection()
     try:
         async with connection.cursor() as cursor:
             await cursor.execute("SELECT room_active FROM bingo_rooms WHERE room_id = %s", (room_id,))
             result = await cursor.fetchone()
-            if result == 1:
+            if result["room_active"] == 1:
                 return True
-            else:
-                return False
+            return False
     finally:
         connection.close()
 

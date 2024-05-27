@@ -37,6 +37,7 @@ async def create_bingo_rooms_table():
                 CREATE TABLE IF NOT EXISTS bingo_rooms (
                     room_id VARCHAR(100) PRIMARY KEY,
                     room_active TINYINT,
+                    pull_count INT,
                     bingo_number VARCHAR(100),
                     player_1 VARCHAR(100) NOT NULL,
                     player_2 VARCHAR(100),
@@ -67,8 +68,8 @@ async def insert_bingo_room_sync(room_id, player_1):
         async with connection.cursor() as cursor:
             # First INSERT statement
             await cursor.execute(
-                "INSERT INTO bingo_rooms (room_id, room_active, bingo_number, player_1, player_2) VALUES (%s, %s, %s, %s, %s)",
-                (room_id, 0, "!", player_1, "Waiting For Player 2")
+                "INSERT INTO bingo_rooms (room_id, room_active, bingo_number, pull_count, player_1, player_2) VALUES (%s, %s, %s, %s, %s, %s)",
+                (room_id, 0, "!", 0, player_1, "Waiting For Player 2")
             )
             # Commit the transaction
             await connection.commit()
@@ -77,6 +78,37 @@ async def insert_bingo_room_sync(room_id, player_1):
         await connection.rollback()
     finally:
         connection.close()
+
+async def increment_bingo_pull_count(room_id):
+    connection = await get_db_connection()
+    try:
+        async with connection.cursor() as cursor:
+            await cursor.execute(
+                "UPDATE bingo_rooms SET pull_count = pull_count + 1 WHERE room_id = %s", (room_id,))
+            await connection.commit()
+    finally:
+        connection.close()
+
+async def get_bingo_pull_count(room_id):
+    connection = await get_db_connection()
+    try:
+        async with connection.cursor() as cursor:
+            await cursor.execute(
+                "SELECT pull_count FROM bingo_rooms WHERE room_id = %s", (room_id,))
+            result = await cursor.fetchone()
+            return result['pull_count'] if result else 0
+    finally:
+        connection.close()
+
+async def reset_pull_count(room_id):
+    connection = await get_db_connection()
+    try:
+        async with connection.cursor() as cursor:
+            await cursor.execute(
+                "UPDATE bingo_rooms SET pull_count = 0 WHERE room_id = %s", (room_id,))
+            await connection.commit()
+    finally:
+        await connection.close()
 
 # Function to get the player_2 from the rooms table
 async def get_bingo_player_two(room_id):

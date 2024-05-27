@@ -141,29 +141,25 @@
             if (numberCallInterval) {
                 clearInterval(numberCallInterval);
             }
-            if (isHost){
-                generateNextNumber()
-            }
             numberCallInterval = setInterval(callNumber, 2000);
         }
 
         async function generateNextNumber() {
             // Generar un nuevo número aleatorio no llamado antes
-            do {
-                // Prepare data to send with POST request
-                const postData = {
-                    room_id: getRoomIdFromPath()
-                };
+            console.log("Generating Next Number")
 
-                const response = await fetch("/generate_next_number", {
-                    method: "POST",
-                    headers: {
-                        'Content-Type': 'application/json'
-                    },
-                    body: JSON.stringify(postData)
-                });
+            // Prepare data to send with POST request
+            const postData = {
+                room_id: getRoomIdFromPath()
+            };
 
-            } while (numbersCalled.includes(currentNumber));
+            const response = await fetch("/generate_next_number", {
+                method: "POST",
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify(postData)
+            });
         }
 
         //Función para animar la llamada de un número
@@ -171,27 +167,27 @@
             const ball = document.getElementById('bingo-ball');
             console.log(getRoomIdFromPath())
 
-            // Generar un nuevo número aleatorio no llamado antes
-            do {
-                // Prepare data to send with POST request
-                const postData = {
-                    room_id: getRoomIdFromPath()
-                };
+            if (isHost){
+                generateNextNumber()
+            }
 
-                const response = await fetch("/pull_bingo_number", {
-                    method: "POST",
-                    headers: {
-                        'Content-Type': 'application/json'
-                    },
-                    body: JSON.stringify(postData)
-                });
+            // Prepare data to send with POST request
+            const postData = {
+                room_id: getRoomIdFromPath()
+            };
 
-                const data = await response.json();
-                console.log(data.number);
+            const response = await fetch("/pull_bingo_number", {
+                method: "POST",
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify(postData)
+            });
 
-                currentNumber = data.number;
+            const data = await response.json();
+            console.log(data.number);
 
-            } while (numbersCalled.includes(currentNumber));
+            currentNumber = data.number;
 
             ball.textContent = currentNumber;
             numbersCalled.push(currentNumber);

@@ -8,6 +8,7 @@ from starlette.middleware.cors import CORSMiddleware
 
 import asyncio
 import random
+from random import randint
 import traceback
 import shortuuid
 import json
@@ -16,7 +17,8 @@ from db import (create_rooms_table, create_room_moves_table,
                 insert_room_sync, join_room_sync, insert_room_move,
                 get_player_one, get_player_two, have_both_moved, create_bingo_rooms_table,
                 insert_bingo_room_sync, get_bingo_player_one, get_bingo_player_two,
-                join_bingo_room_sync, is_room_active, insert_bingo_number, set_room_active, get_bingo_number)
+                join_bingo_room_sync, is_room_active, insert_bingo_number, set_room_active, get_bingo_number,
+                increment_bingo_pull_count, get_bingo_pull_count, reset_pull_count)
 
 
 from pydantic import BaseModel
@@ -155,8 +157,13 @@ async def generate_next_number(request: Request):
     data = await request.json()
     room_id = data['room_id']
 
-    bingo_number = random.randint(0,90)
-    await insert_bingo_number(room_id, bingo_number)
+    await increment_bingo_pull_count(room_id)
+
+    pull_count = await get_bingo_pull_count(room_id)
+    if pull_count > 2:
+        number = random.randint(0, 100)
+        await insert_bingo_number(room_id, number)
+        await reset_pull_count(room_id)
 
 @app.post("/pull_bingo_number")
 async def pull_bingo_number(request: Request):

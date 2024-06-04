@@ -1,0 +1,630 @@
+@import url("https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700;800&display=swap");
+
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+  text-decoration: none;
+  list-style: none;
+}
+
+body {
+  background-color: #080202;
+  font-family: "Poppins", sans-serif;
+}
+
+.container {
+  max-width: 1200px;
+  margin: 0 auto;
+}
+
+.swiper-button-prev::after {
+  font-size: 25px
+}
+
+.swiper-button-next::after {
+  font-size: 25px;
+}
+
+.swiper-button-next {
+  color: #DB241B;
+}
+
+.swiper-button-prev {
+  color: #DB241B;
+}
+
+.swiper-pagination-bullet {
+  background-color: #D3D2D2;
+  opacity: 1;
+}
+
+.swiper-pagination-bullet-active {
+  background-color: #DB241B;
+}
+
+.menu {
+  position: absolute;
+  top: 20px;
+  left: 0;
+  right: 0;
+  display: flex;
+  justify-content: center;
+  z-index: 1009;
+}
+
+.navbar {
+  width: 100%;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.header__logo {
+  width: 180px;
+ }
+ 
+.header__logo img{
+   width: 100%;
+   height: 100%;
+   object-fit: contain;
+ }
+
+.footer__logo {
+ width: 180px;
+}
+
+.footer__logo img{
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+}
+
+.socials {
+  display: flex;
+}
+
+.social {
+  margin: 0 10px;
+  height: 40px;
+  width: 40px;
+  border: 1px solid #D8241B;
+  border-radius: 50%;
+}
+
+.social:hover {
+  background-color: #DB241B;
+}
+
+.social img {
+  margin: 8px 0 0 10px;
+}
+
+.menu .navbar ul li {
+  position: relative;
+  float: left;
+}
+
+.menu .navbar ul li a {
+  font-size: 18px;
+  padding: 20px;
+  color: #FFFFFF;
+  display: block;
+}
+
+.menu .navbar ul li a:hover {
+  color: #DB241B;
+}
+
+#menu {
+  display: none;
+}
+
+.menu-icono {
+  width: 25px;
+}
+
+.menu label {
+  cursor: pointer;
+  display: none;
+}
+
+.header-content {
+  margin-top: 200px;
+  padding-bottom: 50px;
+}
+
+.slider {
+  display: flex;
+  align-items: center;
+}
+
+.slider-txt {
+  margin-left: 85px;
+  width: 50%;
+}
+
+.slider-txt h1 {
+  font-size: 70px;
+  color: #FFFFFF;
+  text-transform: uppercase;
+  font-weight: 800;
+}
+
+.slider-txt p {
+  font-size: 15px;
+  color: #A7A7A7
+}
+
+.botones {
+  margin-top: 50px;
+}
+
+.btn-1 {
+  display: inline-block;
+  padding: 15px 35px;
+  border: 2px solid #DB241B;
+  color: #FFFFFF;
+  font-weight: 800;
+  letter-spacing: 2px;
+  text-transform: uppercase;
+  margin-right: 20px;
+  border-radius: 50px;
+}
+
+.btn-1:hover {
+  background-color: #DB241B;
+}
+
+.slider-img {
+  width: 45%;
+}
+
+.slider-img img {
+  margin-right: 150px;
+  width: 450px;
+}
+
+.products {
+  background-color: #0d0d0d;
+}
+
+.tabs {
+  display: flex;
+  flex-wrap: wrap;
+  padding: 100px 0px;
+}
+
+.tabs label {
+  width: 15%;
+  order: 1;
+  display: block;
+  padding: 20px 0;
+  text-align: center;
+  cursor: pointer;
+  color: #A7A7A7;
+  font-weight: 700;
+  transition: background ease 0.2s;
+}
+
+.tabs--tab {
+  order: 99;
+  flex-grow: 1;
+  width: 100%;
+  display: none;
+  padding-top: 25px;
+}
+
+.tabs input[type="radio"] {
+  display: none;
+}
+
+.tabs input[type="radio"]:checked+label {
+  border-bottom: 2px solid #DB241B;
+  color: #FFFFFF;
+}
+
+.tabs input[type="radio"]:checked+label+.tab {
+  display: block;
+}
+
+
+.product {
+  display: flex;
+  align-items: center;
+  padding: 25px;
+  margin: 0 10px;
+}
+
+.product-img {
+  width: 50%;
+  text-align: left;
+}
+
+/* Estilos para el encabezado de las imágenes de producto */
+.product-img h4 {
+  display: inline-block;
+  padding: 5px 7px;
+  line-height: 15px;
+  color: #FFFFFF;
+  font-size: 14px;
+  text-transform: uppercase;
+  font-weight: 800;
+  border: 2px solid #555555;
+  border-radius: 10px;
+  margin-bottom: 50px;
+}
+
+/* Estilos para las imágenes de producto */
+.product-img img {
+  width: 500px;
+  height: 250px;
+}
+
+/* Estilos para el texto de producto */
+.product-txt {
+  width: 50%;
+  margin-left: 10px;
+  text-align: left;
+}
+
+/* Estilos para el encabezado de texto de producto */
+.product-txt h4 {
+  color: #FFFFFF;
+  font-size: 18px;
+  text-transform: uppercase;
+  font-weight: 800;
+  margin-bottom: 5px;
+}
+
+/* Estilos para el párrafo de texto de producto */
+.product-txt p {
+  color: #A7A7A7;
+  font-size: 16px;
+  margin-bottom: 15px;
+}
+
+/* Estilos para el texto adicional del producto */
+.product-txt span {
+  color: #FFFFFF;
+  font-size: 18px;
+  font-weight: 800;
+}
+
+/* Estilos para la sección de información */
+.info {
+  padding: 100px 0px;
+  display: flex;
+  align-items: center;
+}
+
+/* Estilos para la imagen dentro de la sección de información */
+.info-img {
+  width: 45%;
+  display: flex;
+  justify-content: center;
+}
+
+.info-img img {
+  width: 300px;
+  /* height: ; */
+  height: auto;
+  object-fit: contain;
+}
+
+/* Estilos para el texto de información */
+.info-txt {
+  width: 50%;
+}
+
+/* Estilos para los encabezados dentro del texto de información */
+.info-txt h2 {
+  font-size: 75px;
+  color: #FFFFFF;
+  font-weight: 800;
+  text-transform: uppercase;
+  margin-bottom: 25px;
+}
+
+/* Estilos para los párrafos dentro del texto de información */
+.info-txt p {
+  font-size: 18px;
+  color: #A7A7A7;
+  margin-bottom: 50px;
+}
+
+/* Estilos para el botón */
+.btn-2 {
+  display: inline-block;
+  padding: 15px 35px;
+  background-color: #DB241B;
+  color: #FFFFFF;
+  font-weight: 800;
+  text-transform: uppercase;
+  border-radius: 50px;
+}
+
+/* Estilos para el botón al pasar el cursor sobre él */
+.btn-2:hover {
+  background-color: #ab1c15;
+}
+
+/* Estilos para la sección de horario */
+.horario {
+  padding: 100px 0px;
+  background-color: #0d0d0d;
+}
+
+/* Estilos para los encabezados dentro de la sección de información de horario */
+.horario-info h2 {
+  font-size: 75px;
+  color: #FFFFFF;
+  font-weight: 800;
+  text-transform: uppercase;
+  margin-bottom: 50px;
+}
+
+/* Estilos para el texto de horario */
+.horario-txt {
+  display: flex;
+  justify-content: space-between;
+}
+
+.txt {
+  color: #A7A7A7
+}
+
+.txt h4 {
+  font-size: 18px;
+  color: #A7A7A7;
+  margin-bottom: 30px;
+}
+
+.txt p {
+  font-size: 18px;
+  text-transform: uppercase;
+  font-weight: 600;
+  margin-bottom: 15px;
+}
+
+.map {
+  filter: grayscale(100%) invert(92%) contrast(93%);
+}
+
+/* Estilos para el pie de página */
+.footer {
+  display: grid;
+  grid-template-columns: auto 1fr;
+  justify-items: flex-end;
+  align-items: center;
+  padding: 48px 0;
+
+
+  
+}
+
+.links{
+  display: flex;
+  gap: 40px;
+}
+
+/* Estilos para los encabezados de enlaces */
+.links h4 {
+  color: #FFFFFF;
+  text-transform: uppercase;
+  margin-bottom: 25px;
+}
+
+/* Estilos para los enlaces en la lista del pie de página */
+.links ul li a {
+  color: #FFFFFF;
+  font-size: 16px;
+  margin-bottom: 5px;
+  display: inline-block;
+}
+
+@media(max-width: 991px) {
+  /* Estilos aplicados cuando el ancho de la ventana es 991px o menos */
+
+  /* Estilos para el menú */
+  .menu {
+    padding: 20px;
+    justify-content: space-between;
+  }
+
+  /* Ocultar menu-2 en este tamaño de pantalla */
+  .menu-2 {
+    display: none;
+  }
+
+  /* Estilos para logo-1 */
+  .header__logo {
+    width: 180px;
+   }
+   
+  .header__logo img{
+     width: 100%;
+     height: 100%;
+     object-fit: contain;
+   }
+  .logo {
+    width: 100px;
+    height: auto;
+  }
+
+  /* Mostrar etiqueta del menú */
+  .menu-label {
+    display: initial;
+  }
+
+  /* Definición de estilos para el menú de la barra de navegación */
+  .menu-navbar {
+    position: absolute;
+    top: 100%;
+    left: 0;
+    right: 0;
+    background-color: #181818;
+    /* Añadido color de fondo */
+    display: none;
+  }
+
+  /* Estilos para los elementos de la lista dentro del menú de la barra de navegación */
+  .menu-navbar ul li {
+    width: 100%;
+    /* Establece el ancho completo para los elementos de la lista */
+  }
+
+  /* Mostrar el menú de la barra de navegación cuando el checkbox #menu está marcado */
+  #menu:checked~.menu-navbar {
+    display: initial;
+  }
+
+  /* Estilos para el contenido del encabezado */
+  .header-content {
+    padding: 30px;
+    margin-top: 100px;
+    /* Ajuste de margen superior */
+  }
+
+  /* Estilos para el slider */
+  .slider {
+    flex-direction: column;
+    /* Establece la dirección de los elementos como columna */
+  }
+
+  /* Estilos para el texto dentro del slider */
+  .slider-txt {
+    margin-left: 0;
+    width: 100%;
+    text-align: center;
+    margin-bottom: 50px;
+  }
+
+  /* Estilos para el título dentro del texto del slider */
+  .slider-txt h1 {
+    font-size: 50px;
+  }
+
+  /* Estilos para el párrafo dentro del texto del slider */
+  .slider-txt p {
+    font-size: 16px;
+  }
+
+  /* Estilos para el botón btn-1 */
+  .btn-1 {
+    padding: 10px 25px;
+    font-size: 14px;
+  }
+
+  /* Estilos para las imágenes dentro del slider */
+  .slider-img {
+    width: 100%;
+    text-align: center;
+  }
+
+  /* Estilos para las imágenes dentro del slider */
+  .slider-img img {
+    margin-right: 0px;
+    width: 500px;
+  }
+
+  /* Estilos para la paginación del swiper horizontal */
+  .swiper-horizontal>.swiper-pagination-bullets,
+  .swiper-pagination-bullets,
+  .swiper-pagination-horizontal,
+  .swiper-pagination-custom,
+  .swiper-pagination-fraction {
+    bottom: -7px;
+  }
+
+  /* Estilos para las pestañas */
+  .tabs {
+    padding: 50px 30px;
+  }
+
+  /* Estilos para las etiquetas dentro de las pestañas */
+  .tabs label {
+    width: 33%;
+  }
+
+  /* Estilos para la información */
+  .info {
+    padding: 30px;
+    flex-direction: column;
+  }
+
+  /* Estilos para las imágenes de información */
+  .info-img {
+    width: 100%;
+    text-align: center;
+  }
+
+  /* Estilos para las imágenes dentro de la información */
+  .info-img img {
+    width: 500px;
+    height: 250px;
+    margin-bottom: 25px;
+  }
+
+  /* Estilos para el texto dentro de la información */
+  .info-txt {
+    width: 100%;
+    text-align: center;
+  }
+
+  /* Estilos para los títulos dentro del texto de información */
+  .info-txt h2 {
+    font-size: 50px;
+  }
+
+  /* Estilos para los párrafos dentro del texto de información */
+  .info-txt p {
+    font-size: 16px;
+  }
+
+  /* Estilos para el botón btn-1 */
+  .btn-1 {
+    font-size: 16px;
+  }
+
+  /* Estilos para el horario */
+  .horario {
+    padding: 30px;
+    text-align: center;
+  }
+
+  /* Estilos para el título dentro de horario-info */
+  .horario-info h2 {
+    font-size: 50px;
+    margin-bottom: 15px;
+  }
+
+  /* Estilos para el contenedor de texto de horario */
+  .horario-txt {
+    flex-direction: column;
+  }
+
+  /* Estilos para el contenedor de redes sociales */
+  .socials {
+    justify-content: center;
+  }
+
+  /* Estilos para las imágenes de redes sociales */
+  .social img {
+    margin: 8px 0 0 0;
+  }
+
+  /* Estilos para el pie de página */
+  .footer {
+    padding: 30px;
+    flex-direction: column;
+    text-align: center;
+  }
+
+  .links h4 {
+    margin: 25px 0px 10px 0px;
+  }
+
+
+
+}

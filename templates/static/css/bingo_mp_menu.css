@@ -1,0 +1,75 @@
+/* General Styles */
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+    font-family: 'Poppins', sans-serif; 
+}
+
+body {
+    background-color: #080202;
+    color: #FFFFFF;
+    display: flex;
+    justify-content: center; 
+    align-items: center;
+    height: 100vh; 
+    padding: 20px;
+}
+
+h1 {
+    margin-bottom: 20px;
+}
+
+input, button {
+    width: 100%; 
+    padding: 12px 20px;
+    margin: 8px 0;
+    display: inline-block;
+    border: 1px solid #ccc;
+    box-sizing: border-box;
+    border-radius: 4px; 
+}
+
+button {
+    background-color: #DB241B; 
+    color: white;
+    border: none;
+    cursor: pointer;
+}
+
+button:hover {
+    opacity: 0.8;
+}
+
+form {
+    background: #333;
+    max-width: 300px;
+    padding: 30px;
+    border-radius: 8px;
+    box-shadow: 0 4px 8px 0 rgba(0,0,0,0.2);
+}
+
+.username {
+    position: relative;  // Ensure this container is positioned
+    z-index: 1500;       // Set a higher z-index than any other overlapping elements
+}
+
+.username h1 {
+    color: #FFFFFF;
+    z-index: 2;          // This z-index is relative to its parent .username
+    position: relative;
+    background-color: rgba(0, 0, 0, 0.7);
+    padding: 10px;
+    border-radius: 5px;
+}
+
+/* Responsive typography */
+@media (max-width: 600px) {
+    h1 {
+        font-size: 18px;
+    }
+
+    input, button {
+        padding: 10px 15px;
+    }
+}

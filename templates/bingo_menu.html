@@ -1,32 +1,29 @@
 <!DOCTYPE html>
-<html>
-    <head>
-        <meta charset="utf-8">
-        <meta http-equiv="X-UA-Compatible" content="IE=edge">
-        <title>PPT ONLINE</title>
-        <meta name="description" content="">
-        <meta name="viewport" content="width=device-width, initial-scale=1">
-        <link rel="stylesheet" href="">
-    </head>
-    <body>
-        <h1>Username: {{USERNAME}}</h1>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Bingo Menu</title>
+    <link rel="stylesheet" href="/static/css/bingo_mp_menu.css">
+</head>
+<body>
+    <div class="username">
+        <h1>{{USERNAME}}</h1>
+    </div>
 
-        <form action="/join_bingo_mp" method="post">
-            <h1>Join Room</h1>
-            <input type="text" name="room_id" placeholder="Enter Room ID" required>
-            <button type="submit">Join Room</button>
-        </form>
+    <form action="/join_bingo_mp" method="post">
+        <h1>Join Room</h1>
+        <input type="text" name="room_id" placeholder="Enter Room ID" required>
+        <button type="submit">Join Room</button>
+    </form>
 
-        <form action="/bingo_mp">
-            <button>Create Bingo Lobby</button>
-        </form>
+    <form action="/bingo_mp">
+        <button>Create Bingo Lobby</button>
+    </form>
+    
+    <script>
+        const username = request.session["username"]
+    </script>
 
-        <script src="" async defer></script>
-
-        <script>
-            const username = request.session["username"]
-
-
-        </script>
-
-    </body>
+</body>
+</html>

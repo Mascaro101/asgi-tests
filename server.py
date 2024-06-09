@@ -103,6 +103,13 @@ async def session_menu(request: Request):
     # Render the session_menu template with the username entered before
     return templates.TemplateResponse("session_menu.html", {"request": request, "USERNAME": username})
 
+# Main Menu Route
+@app.get("/main", response_class=HTMLResponse)
+async def main_menu(request: Request):
+    username = request.session.get("username", "None")
+
+    return templates.TemplateResponse("main.html", {"request": request, "username": username})
+
 # Create_Session Route
 @app.get("/create_session")
 async def create_session(request: Request, background_tasks: BackgroundTasks):
@@ -149,8 +156,18 @@ app.mount("/static", StaticFiles(directory="/home/mascaro101/casino_asgi/templat
 @app.get("/bingo")
 async def bingo(request: Request):
     request.session["bingo_numbers"] = []
-    return templates.TemplateResponse("index_bingo.html", {"request": request})
+    return templates.TemplateResponse("bingo.html", {"request": request})
 
+@app.post("/generate_bingo_number")
+def generate_number(request: Request):
+    used_numbers = request.session["bingo_numbers"]
+    number = random.randint(0, 100)
+
+    while number in used_numbers:
+        number = random.randint(0, 100)
+
+    used_numbers.append(number)
+    return {"number": number}
 
 @app.post("/generate_next_number")
 async def generate_next_number(request: Request):
@@ -178,17 +195,6 @@ async def pull_bingo_number(request: Request):
         raise HTTPException(status_code=400, detail="Room ID is missing.")
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))
-
-@app.post("/generate_bingo_number")
-def generate_number(request: Request):
-    used_numbers = request.session["bingo_numbers"]
-    number = random.randint(0, 100)
-
-    while number in used_numbers:
-        number = random.randint(0, 100)
-
-    used_numbers.append(number)
-    return {"number": number}
 
 # Create_Bingo_Session Route
 @app.get("/bingo_mp")

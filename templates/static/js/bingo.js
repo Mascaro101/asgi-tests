@@ -1,5 +1,6 @@
 //Función para generar múltiples cartones de bingo
 function generateCards() {
+    console.log("TEST?")
     const numCards = document.getElementById('num-cards').value;
     const bingoCardsContainer = document.getElementById('bingo-cards');
     bingoCardsContainer.innerHTML = '';
@@ -94,15 +95,17 @@ let currentNumber = 0;
 const numbersCalled = [];
 let numberCallInterval;
 
+//Función para iniciar la llamada de números
 function startCallingNumbers() {
     if (numberCallInterval) {
         clearInterval(numberCallInterval);
     }
-    callNumber().catch(error => console.error(error));
+    numberCallInterval = setInterval(callNumber, 2000); //Llamada de número cada 2 segundos
 }
 
 //Función para animar la llamada de un número
 async function callNumber() {
+    console.log("Called Number")
     const ball = document.getElementById('bingo-ball');
 
     //Generar un nuevo número aleatorio no llamado antes

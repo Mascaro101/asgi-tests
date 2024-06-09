@@ -40,14 +40,14 @@ var swiper2 = new Swiper(".mySwiper-2", {
 function autoSlideNext(swiper) {
   setInterval(function() {
     swiper.slideNext();
-  }, 3000); // Cambiar cada 3 segundos
+  }, 7000); // Cambiar cada 7 segundos
 }
 
 // Llamar a la función para avanzar automáticamente para cada swiper
 autoSlideNext(swiper1);
 autoSlideNext(swiper2);
 
-  
+
   let tabInputs = document.querySelectorAll(".tabInput");
 
 tabInputs.forEach(function(input) {
@@ -57,5 +57,4 @@ tabInputs.forEach(function(input) {
       thisSwiper.swiper.update();
     });
   });
-  
-  
+

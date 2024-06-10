@@ -153,6 +153,11 @@ async def set_username(request: Request, user: User):
 app.mount("/static", StaticFiles(directory="/home/mascaro101/casino_asgi/templates/static"), name="static")
 
 # Bingo game route
+@app.get("/tragaperras")
+async def tragaperras(request: Request):
+    return templates.TemplateResponse("tragaperras.html", {"request": request})
+
+# Bingo game route
 @app.get("/bingo")
 async def bingo(request: Request):
     request.session["bingo_numbers"] = []

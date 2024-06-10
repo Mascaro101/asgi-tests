@@ -1,0 +1,35 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Tragaperras</title>
+    <!--Ponemos en el nombre que aparecera en la pestaña del navegador-->
+    <link rel="stylesheet" href="/static/css/styles_tragaperras.css">
+    <!--Introducimos nuestro archivo de css para darle el estilo a la pagina-->
+</head>
+<body>
+    <div class="container">
+        <!--Contenedor principal para los elementos de la tragaperras-->
+        <div id="result" class="result"></div>
+        <!--Contenedor para mostrar el resultado del juego-->
+        <div class="slot-machine">
+            <!--Contenedor de la máquina tragaperras-->
+            <div class="reel" id="reel1"></div>
+            <div class="reel" id="reel2"></div>
+            <div class="reel" id="reel3"></div>
+            <div class="lever" id="lever"></div>
+            <!--Representa la palanca de la tragaperras-->
+        </div>
+    </div>
+    <div class="controls">
+        <!--Contenedor para los controles del juego-->
+        <div>Euros totales: <span id="totalMoney">100</span>€</div>
+        <!--Muestra la cantidad total de euros disponibles-->
+        <input type="number" id="betAmount" placeholder="Apuesta" min="1" step="1">
+        <!--Campo de entrada para la cantidad de la apuesta, con un mínimo de 1 y paso de 1-->
+    </div>
+
+    <script src="/static/js/script_tragaperras.js"></script>
+</body>
+</html>

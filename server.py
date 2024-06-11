@@ -18,7 +18,7 @@ from db import (create_rooms_table, create_room_moves_table,
                 get_player_one, get_player_two, have_both_moved, create_bingo_rooms_table,
                 insert_bingo_room_sync, get_bingo_player_one, get_bingo_player_two,
                 join_bingo_room_sync, is_room_active, insert_bingo_number, set_room_active, get_bingo_number,
-                increment_bingo_pull_count, get_bingo_pull_count, reset_pull_count)
+                increment_bingo_pull_count, get_bingo_pull_count, reset_pull_count, create_bingo_history, insert_bingo_number_history, check_bingo_number)
 
 
 from pydantic import BaseModel
@@ -55,6 +55,7 @@ async def rock_paper_scissors(room_id):
 @app.on_event("startup")
 async def startup_event():
     try:
+        await create_bingo_history()
         await create_rooms_table()
         await create_room_moves_table()
         await create_bingo_rooms_table()
@@ -91,7 +92,7 @@ async def join_session(request: Request, background_tasks: BackgroundTasks, room
 # Root Route
 @app.get("/")
 async def read_root():
-    return FileResponse('/home/mascaro101/casino_asgi/templates/index.html')
+    return FileResponse('/home/mascaro101/casino_asgi/templates/login_page.html')
 
 # Session_Menu Route
 @app.get("/session_menu", response_class=HTMLResponse)
@@ -184,16 +185,22 @@ async def generate_next_number(request: Request):
     pull_count = await get_bingo_pull_count(room_id)
     if pull_count > 2:
         number = random.randint(0, 100)
+
+        while await check_bingo_number(room_id, number):
+            number = random.randint(0, 100)
+
         await insert_bingo_number(room_id, number)
+        await insert_bingo_number_history(room_id, number)
         await reset_pull_count(room_id)
 
 @app.post("/pull_bingo_number")
 async def pull_bingo_number(request: Request):
     try:
-        data = await request.json()  # Get data from JSON body
+        data = await request.json()
         room_id = data['room_id']
         number = await get_bingo_number(room_id)
         print("Room:", room_id, "Number:", number)
+
         return {"number": number}
 
     except KeyError:

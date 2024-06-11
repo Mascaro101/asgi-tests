@@ -48,6 +48,55 @@ async def create_bingo_rooms_table():
     finally:
         connection.close()
 
+async def check_bingo_number(room_id, number):
+    connection = await get_db_connection()
+    try:
+        async with connection.cursor() as cursor:
+            # Check if the number exists under the given room_id
+            await cursor.execute(
+                "SELECT 1 FROM bingo_history WHERE room_id = %s AND bingo_number = %s LIMIT 1",
+                (room_id, number)
+            )
+            result = await cursor.fetchone()
+            return result is not None
+    finally:
+        await connection.ensure_closed()
+
+
+# Create Bingo History Table
+async def create_bingo_history():
+    connection = await get_db_connection()
+    try:
+        async with connection.cursor() as cursor:
+            await cursor.execute('''
+                CREATE TABLE IF NOT EXISTS bingo_history (
+                    id INT AUTO_INCREMENT PRIMARY KEY,
+                    room_id VARCHAR(100),
+                    bingo_number VARCHAR(100)
+                )
+            ''')
+            await connection.commit()
+    finally:
+        await connection.ensure_closed()  # Close the connection asynchronously
+
+# Function to insert a new bingo room into the rooms table
+async def insert_bingo_number_history(room_id, bingo_number):
+    connection = await get_db_connection()
+    try:
+        async with connection.cursor() as cursor:
+            # First INSERT statement
+            await cursor.execute(
+                "INSERT INTO bingo_history (room_id, bingo_number) VALUES (%s, %s)",
+                (room_id, bingo_number)
+            )
+            # Commit the transaction
+            await connection.commit()
+    except aiomysql.Error as e:
+        print(f"An error occurred: {e}")
+        await connection.rollback()
+    finally:
+        connection.close()
+
 # Function to join a bingo room from room_id
 async def join_bingo_room_sync(room_id: str, player_2: str):
     connection = await get_db_connection()

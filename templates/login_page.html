@@ -1,0 +1,48 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Login y Register</title>
+    <link rel="icon" type="image/png" href="/static/images/logo.ico">
+    <link rel="stylesheet" href="/static/css/login.css">
+</head>
+<body>
+    <main>
+        <div class="contenedor__todo">
+            <!-- Bloque rojo -->
+            <div class="caja__trasera">
+                <h3>Fortune Royale</h3>
+                <p>Juega con tus amigos de manera segura sin perder dinero!</p>
+            </div>
+
+            <!-- Bloque blanco (Formulario de Login) -->
+            <div class="contenedor__login-register">
+                <form action="/main" onsubmit="setUsername(event)">
+                    <h2>Iniciar Sesión</h2>
+                    <input type="text" placeholder="username" id="usernameInput">
+                    <button>Entrar</button>
+                </form>
+            </div>
+        </div>
+    </main>
+
+    <script>
+    function setUsername(event) {
+        event.preventDefault();
+        let username = document.getElementById('usernameInput').value;
+        sessionStorage.setItem("username", username);
+        fetch('/set_username', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({ username: username }),
+        })
+        .then(() => {
+            event.target.submit();
+        });
+    }
+    </script>
+</body>
+</html>

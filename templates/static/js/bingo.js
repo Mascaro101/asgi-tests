@@ -1,13 +1,13 @@
 //Función para generar múltiples cartones de bingo
-function generateCards() {
+function generarcartones() {
     console.log("TEST?")
-    const numCards = document.getElementById('num-cards').value;
-    const bingoCardsContainer = document.getElementById('bingo-cards');
-    bingoCardsContainer.innerHTML = '';
+    const numCards = document.getElementById('numeros-cartones').value;
+    const bingoCardsbloque = document.getElementById('cartones-bingo');
+    bingoCardsbloque.innerHTML = '';
 
     for (let i = 0; i < numCards; i++) {
         const card = generateCard();
-        bingoCardsContainer.appendChild(card);
+        bingoCardsbloque.appendChild(card);
     }
 
     //Iniciar la llamada de números
@@ -21,11 +21,12 @@ function generateCard() {
     //Generar números para cada columna del cartón
     for (let i = 0; i < 9; i++) {
         const column = [];
-        //Generar números en el rango correspondiente a la columna
+        
+        //Generar números en la columna
         for (let j = i * 10 + 1; j <= (i + 1) * 10; j++) {
             column.push(j);
         }
-        //Mezclar los números de la columna
+        //Mezclar numeros para que salgan en las columnas
         shuffleArray(column);
         //Agregar los números al arreglo principal
         numbers.push(...column);
@@ -53,7 +54,8 @@ function generateCard() {
         const row = document.createElement('tr');
         for (let j = 0; j < 9; j++) {
             const cell = document.createElement('td');
-            if (coveredIndices.includes(counter)) { //Comprobar si la celda debe estar cubierta
+            //Comprobar si la celda esta cubierta
+            if (coveredIndices.includes(counter)) { 
                 const cover = document.createElement('div');
                 cover.classList.add('initial-cover');
                 cell.appendChild(cover);
@@ -70,7 +72,7 @@ function generateCard() {
     return table;
 }
 
-//Función para mezclar un arreglo usando el algoritmo de Fisher-Yates (mezcla aleatoria)
+//Función para mezclar un arreglo usando algoritmo
 function shuffleArray(array) {
     for (let i = array.length - 1; i > 0; i--) {
         const j = Math.floor(Math.random() * (i + 1));
@@ -79,15 +81,15 @@ function shuffleArray(array) {
 }
 
 //Función para reiniciar los cartones de bingo
-function resetCards() {
-    const bingoCardsContainer = document.getElementById('bingo-cards');
-    bingoCardsContainer.innerHTML = '';
+function reiniciarcartones() {
+    const bingoCardsbloque = document.getElementById('cartones-bingo');
+    bingoCardsbloque.innerHTML = '';
     numbersCalled.length = 0;
     currentNumber = 0;
     if (numberCallInterval) {
         clearInterval(numberCallInterval);
     }
-    document.getElementById('bingo-ball').textContent = '';
+    document.getElementById('bola-bingo').textContent = '';
 }
 
 //Variables para mantener el estado del juego
@@ -106,7 +108,7 @@ function startCallingNumbers() {
 //Función para animar la llamada de un número
 async function callNumber() {
     console.log("Called Number")
-    const ball = document.getElementById('bingo-ball');
+    const ball = document.getElementById('bola-bingo');
 
     //Generar un nuevo número aleatorio no llamado antes
     do {

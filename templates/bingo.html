@@ -3,32 +3,54 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    
+    
     <title>Bingo</title>
-    <link rel="icon" type="image/png" href="/static/images/logo.ico">
+
+    <!--Con esto lo que hacemos esque el logo salga en la pestaña-->
+    <link rel="icono" type="image/png" href="/static/images/logo.ico">
+
     <link rel="stylesheet" href="/static/css/bingo_styles.css">
+
 </head>
 <body>
     <div class="background">
-        <div class="container">
+        <div class="bloque">
             <div id="prueba">
-                <div class="bingo-ball" id="bingo-ball"></div>
+                <!--Con esto se genera la bola del bingo-->
+                <div class="bola-bingo" id="bola-bingo"></div>
+
             </div>
-            <div id="bingo-cards" class="bingo-cards">
-                <!-- Aquí se generarán los cartones de bingo con JavaScript -->
-            </div>
+
+            <!--Con esto se generan los cartones-->
+            <div id="cartones-bingo" class="cartones-bingo"></div>
+
         </div>
-        <div class="controls">
-            <label for="num-cards">Número de cartones:</label>
-            <select id="num-cards">
+        <div class="controles">
+
+            <!--Esto nos indica de cuantos cartones queremos-->
+            <label for="numeros-cartones">Número de cartones:</label>
+
+            <!--Con esto creamos el select con el que podemos elegir los cartones-->
+            <select id="numeros-cartones">
                 <option value="1">1</option>
                 <option value="2">2</option>
                 <option value="3">3</option>
                 <option value="4">4</option>
+
             </select>
-            <button onclick="generateCards()">Generar Cartones</button>
-            <button onclick="resetCards()">Reiniciar</button>
+
+            <!--boton con el que se generan los cartones-->
+
+            <button onclick="generarcartones()">Generar Cartones</button>
+            
+            <!--De la misma manera, boton con el que se reinicia el programa-->
+
+            <button onclick="reiniciarcartones()">Reiniciar</button>
+
         </div>
     </div>
+
     <script src="/static/js/bingo.js"></script>
 </body>
 </html>

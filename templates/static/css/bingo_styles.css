@@ -1,103 +1,120 @@
 body {
-    margin: 0;
-    padding: 0;
-    font-family: Arial, sans-serif;
-  }
+  margin: 0;
+  padding: 0;
+  font-family: Arial, sans-serif;
+  /* Establece estilos básicos para el cuerpo de la página, eliminando márgenes y rellenos predeterminados y definiendo la fuente utilizada */
+}
 
-  .background {
-    background-image: url('/static/images/fondito_bingo2.png');
-    background-size: cover;
-    background-repeat: no-repeat;
-    background-position: center;
-    height: 100vh;
-    display: flex;
-    flex-direction: column;
-    justify-content: center;
-    align-items: center;
-  }
+.background {
+  background-image: url('/static/images/fondito_bingo2.png');
+  background-size: cover;
+  background-repeat: no-repeat;
+  background-position: center;
+  height: 100vh;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  /* Configura el contenedor principal con una imagen de fondo que cubre toda la ventana,
+     y centra su contenido tanto vertical como horizontalmente utilizando el modelo de caja flexible */
+}
 
-  .container {
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    margin-top: 50px;
-  }
+.bloque {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  margin-top: 50px;
+  /* Organiza el contenido de este contenedor en una columna y lo centra horizontalmente,
+     además de añadir un margen superior para separación */
+}
 
-  .bingo-cards {
-    display: flex;
-    max-width: 1100px;
-    flex-wrap: wrap;
-    gap: 20px;
-    justify-content: center;
-  }
+.cartones-bingo {
+  display: flex;
+  max-width: 1100px;
+  flex-wrap: wrap;
+  gap: 20px;
+  justify-content: center;
+  /* Define el contenedor para los cartones de bingo, permitiendo que los elementos hijos se envuelvan
+     y se centren, con un espacio entre ellos */
+}
 
-  .bingo-card {
-    border-collapse: collapse;
-    margin-bottom: 20px;
-  }
+.bingo-card {
+  border-collapse: collapse;
+  margin-bottom: 20px;
+  /* Estilo para las tablas de los cartones de bingo, colapsando bordes y añadiendo margen inferior */
+}
 
-  .bingo-card td {
-    border: 1px solid black;
-    width: 55px;
-    height: 55px;
-    text-align: center;
-    font-size: 20px;
-    position: relative;
-  }
+.bingo-card td {
+  border: 1px solid black;
+  width: 55px;
+  height: 55px;
+  text-align: center;
+  font-size: 20px;
+  position: relative;
+  /* Estilos para las celdas de los cartones de bingo, definiendo tamaño, borde, alineación de texto
+     y posición relativa para capas internas */
+}
 
-  .bingo-card .initial-cover {
-    position: absolute;
-    top: 0;
-    left: 0;
-    width: 100%;
-    height: 100%;
-    background-color: rgba(128, 128, 128, 0.5);
-  }
+.bingo-card .initial-cover {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background-color: rgba(128, 128, 128, 0.5);
+  /* Capa inicial que cubre cada celda del cartón de bingo, con fondo semitransparente */
+}
 
-  .bingo-card .number-cover {
-    position: absolute;
-    top: 0;
-    left: 0;
-    width: 100%;
-    height: 100%;
-    background-color: rgba(255, 0, 0, 0.5);
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    color: white;
-    font-weight: bold;
-    font-size: 24px;
-  }
+.bingo-card .number-cover {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background-color: rgba(255, 0, 0, 0.5);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: white;
+  font-weight: bold;
+  font-size: 24px;
+  /* Capa que cubre los números seleccionados en los cartones de bingo, con fondo semitransparente rojo
+     y texto blanco centrado */
+}
 
-  .bingo-ball {
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    width: 60px;
-    height: 60px;
-    background-color: #cd966c;
-    color: #000;
-    font-size: 30px;
-    font-weight: bold;
-    line-height: 60px;
-    border-radius: 50%;
-    border: 2px solid #000;
-    margin-bottom: 20px;
-    animation: bounce 0.5s ease infinite alternate;
-  }
+.bola-bingo {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  width: 60px;
+  height: 60px;
+  background-color: #cd966c;
+  color: #000;
+  font-size: 30px;
+  font-weight: bold;
+  line-height: 60px;
+  border-radius: 50%;
+  border: 2px solid #000;
+  margin-bottom: 20px;
+  animation: bounce 0.5s ease infinite alternate;
+  /* Estilo para la bola de bingo, definiendo su tamaño, forma circular, colores y animación de rebote */
+}
 
-  @keyframes bounce {
-    from {
+@keyframes bounce {
+  from {
       transform: translateY(-10px);
-    }
-    to {
+  }
+  to {
       transform: translateY(0);
-    }
   }
+  /* Define la animación de rebote para la bola de bingo, con un ligero movimiento vertical */
+}
 
-  .controls {
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    gap: 10px;
-  }
+.controles {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 10px;
+  /* Estilos para el contenedor de los controles, organizando los elementos en una columna y
+     añadiendo espacio entre ellos */
+}

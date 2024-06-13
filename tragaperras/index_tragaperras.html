@@ -1,0 +1,52 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    
+    <!--Este es el titulo de que saldra en la pestaña del navegador-->
+    <title>Tragaperras</title>
+    
+    <!--LLamamos a nuestro archivo de css para que se vean los estilos creados-->
+
+    <link rel="stylesheet" href="styles_tragaperras.css">
+</head>
+
+<body>
+    <!--Bloque principal donde se desarrollara toda la funcionalidad-->
+    <div class="bloque">
+        
+        <!--Aqui se muestran los resultados de los giros-->
+        <div id="resultado" class="resultado"></div>
+        
+        <!--Aqui queda representada la tragaperras con el contenedor definido-->
+
+        <div class="slot-machine">
+            <!--se crea el primer carril-->
+            <div class="carril" id="carril1"></div>
+
+            <!--se crea el segundo carril-->
+            <div class="carril" id="carril2"></div>
+
+            <!--se crea el tercer carril-->
+            <div class="carril" id="carril3"></div>
+            
+            <!--Con esto se crea la palanca que veremos en el programa-->
+            <div class="palanca" id="palanca"></div>
+
+        </div>
+    </div>
+
+    <div class="controles">
+        <!--Nos dice el saldo que disponemos-->
+        <div>Dinero disponible: <span id="dinerototal">100</span>€</div>
+        
+        <!--Aqui se introduce la cantidad de apuesta que deseamos minimo de 1 y va saltando de uno en uno-->
+        <input type="numero" id="apuesta" placeholder="Introduzca Apuesta: " min="1" step="1">
+
+    </div>
+    <!--Introducimos nuestro archido de js para darle la logica al juego -->
+    <script src="script_tragaperras.js"></script>
+</body>
+</html>
